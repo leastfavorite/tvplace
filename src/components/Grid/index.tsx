@@ -2,10 +2,8 @@
 
 import { Ref, useState, useEffect, useRef, } from "react";
 import style from "./style.module.css";
-import { useController, UseControllerProps } from "react-hook-form";
-import { FormValues } from "@/app/page";
 import { useEvent } from "../SocketProvider";
-import Camera from "../Camera";
+import Camera from "../GridController";
 import { PixelGrid } from "@/utils/pixels";
 
 export interface GridProps {
@@ -14,13 +12,7 @@ export interface GridProps {
   height: number;
 }
 
-export default function Grid({
-  colors,
-  width,
-  height,
-  ...props
-}: GridProps & UseControllerProps<FormValues>) {
-  const { field, fieldState } = useController(props);
+export default function Grid({ colors, width, height }: GridProps) {
 
   const canvasRef: Ref<HTMLCanvasElement> = useRef(null);
 
@@ -34,7 +26,6 @@ export default function Grid({
   }
 
   const refresh = () => {
-    console.log("refreshing!");
     if (ctx) {
       const pixels = getPixels();
       const imageData = new ImageData(pixels, pixels.w, pixels.h);
@@ -60,18 +51,5 @@ export default function Grid({
 
   useEffect(() => refresh, [ctx])
 
-  //
-  // const mouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
-  //     const r = e.currentTarget.getBoundingClientRect()
-  //     const x = Math.floor((e.pageX - r.x) / scale)
-  //     const y = Math.floor((e.pageY - r.y) / scale)
-  // };
-
-  return (
-    <div className={style.container}>
-      <Camera>
-        <canvas width={width} height={height} ref={canvasRef} />
-      </Camera>
-    </div>
-  );
+  return <canvas width={width} height={height} ref={canvasRef} />
 }

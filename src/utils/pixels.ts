@@ -8,6 +8,7 @@ export interface PixelGridArgs {
 }
 
 export class PixelGrid extends Uint8ClampedArray {
+
   w: number;
   h: number;
   colors: Color[];

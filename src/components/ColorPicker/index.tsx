@@ -5,8 +5,8 @@ import styles from "./style.module.css";
 
 import { CSSProperties } from "react";
 import { UseControllerProps, useController } from "react-hook-form";
-import { FormValues } from "@/app/page";
 import { luminance } from "@/utils/color";
+import { FormValues } from "../Form";
 
 export default function ColorPicker({
   colors,
@@ -25,22 +25,24 @@ export default function ColorPicker({
     2 * Math.sqrt(luminance(brightest) * luminance(darkest));
 
   return (
-    <div className={styles.picker}>
-      {colors.map((c, i) => {
-        const iconColor =
-          luminance(c) < contrastThreshold ? brightest : darkest;
-        const cssVars = {
-          "--selectionColor": c,
-          "--iconColor": iconColor,
-        } as CSSProperties;
+    <div className={styles.pickerContainer}>
+      <div className={styles.picker}>
+        {colors.map((c, i) => {
+          const iconColor =
+            luminance(c) < contrastThreshold ? brightest : darkest;
+          const cssVars = {
+            "--selectionColor": c,
+            "--iconColor": iconColor,
+          } as CSSProperties;
 
-        return (
-          <div className={styles.container} key={i} style={cssVars}>
-            <input {...field} type="radio" value={i} />
-            <HiPaintBrush className={styles.icon} />
-          </div>
-        );
-      })}
+          return (
+            <div className={styles.container} key={i} style={cssVars}>
+              <input {...field} type="radio" value={i} />
+              <HiPaintBrush className={styles.icon} />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

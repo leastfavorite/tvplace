@@ -32,7 +32,7 @@ app.prepare().then(() => {
 
     const interval = setInterval(() => {
       socket.emit("p", randomPixel());
-    }, 100);
+    }, 1000);
 
     socket.on("disconnect", () => clearInterval(interval));
   });

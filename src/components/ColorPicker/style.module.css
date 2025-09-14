@@ -1,11 +1,21 @@
+.pickerContainer {
+  flex-grow: 1;
+  padding: 0.3em;
+  border: 3px solid black;
+  max-width: 1200px;
+  border-radius: 2.8em;
+}
+
 .picker {
+  flex-grow: 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   justify-items: stretch;
   gap: 0px;
-  border-radius: 2em;
+  border-radius: 2.5em;
   overflow: hidden;
-  border:;
+
+
 }
 
 .container {
@@ -93,7 +103,7 @@
   transition-property: border-radius transform;
   transition-duration: 0.1s;
   transition-timing-function: ease-out;
-  transform: scale3d(101%, 100%, 100%);
+  transform: scale3d(101%, 101%, 100%);
   background-color: var(--selectionColor);
 }
 
