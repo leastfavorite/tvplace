@@ -4,9 +4,10 @@ import { Ref, useState, useEffect, useRef, MouseEvent } from "react"
 import style from "./style.module.css";
 import { useController, UseControllerProps } from "react-hook-form";
 import { FormValues } from "@/app/page";
+import { colorHexToRgb } from "@/utils/color";
 
 export interface GridProps {
-    colors: number[];
+    colors: string[];
     width: number;
     height: number;
 }
@@ -34,12 +35,13 @@ export default function Grid({ colors, width, height, ...props }: GridProps & Us
             let pixels = new Uint8ClampedArray(4 * width * height);
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
-                    const color = colors[Math.floor(Math.random() * 16)]
+                    const colorStr = colors[Math.floor(Math.random() * 16)]
+                    const color = colorHexToRgb(colorStr);
                     const i = 4 * (y * width + x)
-                    pixels[i] = (color >> 16) & 255;
-                    pixels[i + 1] = (color >> 8) & 255;
-                    pixels[i + 2] = color & 255;
-                    pixels[i + 3] = 255;
+                    pixels[i] = color.r
+                    pixels[i + 1] = color.g
+                    pixels[i + 2] = color.b
+                    pixels[i + 3] = 255
                 }
             }
             let imageData = new ImageData(pixels, width, height)
@@ -58,7 +60,7 @@ export default function Grid({ colors, width, height, ...props }: GridProps & Us
     // };
 
     return (
-        <div className={style.container}>
+        <div className={style.container} style={{transform: "scale(800%)"}}>
             <canvas width={width} height={height} ref={canvasRef} />
         </div>
     )

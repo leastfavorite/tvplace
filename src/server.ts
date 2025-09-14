@@ -2,6 +2,9 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 
+// onConnect:
+// server sends client past 5m of map updates
+
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = 3000;
