@@ -1,15 +1,14 @@
 .container {
-    position: fixed;
-    image-rendering: pixelated;
+  position: fixed;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    height: 100vh;
-    width: 100vw;
+  height: 100vh;
+  width: 100vw;
 }
 
-.container canvas {
-    flex: 0 0 100px;
+.camera {
+  image-rendering: pixelated;
 }
