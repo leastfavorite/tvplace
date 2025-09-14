@@ -23,34 +23,36 @@ export default function Grid({ colors, width, height, ...props }: GridProps & Us
     //
     // const containerRef: Ref<HTMLDivElement> = useRef(null)
     const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null)
+    const [pixels, setPixels] = useState<Uint8ClampedArray<ArrayBuffer>>(() => {
+        let result = new Uint8ClampedArray(4 * width * height);
+        for (let i = 0; i < width * height; i++) {
+            const colorStr = colors[Math.floor(Math.random() * colors.length)]
+            const color = colorHexToRgb(colorStr);
+            result[4 * i    ] = color.r
+            result[4 * i + 1] = color.g
+            result[4 * i + 2] = color.b
+            result[4 * i + 3] = 255
+        }
+        return result
+    });
+
     const canvasRef: Ref<HTMLCanvasElement> = useRef(null)
 
     useEffect(() => {
         let canvas = canvasRef.current
         if (canvas) {
-
             const context = canvas.getContext("2d");
             setCtx(context);
-
-            let pixels = new Uint8ClampedArray(4 * width * height);
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const colorStr = colors[Math.floor(Math.random() * 16)]
-                    const color = colorHexToRgb(colorStr);
-                    const i = 4 * (y * width + x)
-                    pixels[i] = color.r
-                    pixels[i + 1] = color.g
-                    pixels[i + 2] = color.b
-                    pixels[i + 3] = 255
-                }
-            }
-            let imageData = new ImageData(pixels, width, height)
-
-            if (context) {
-                context.putImageData(imageData, 0, 0)
-            }
         };
     }, [canvasRef]);
+
+    useEffect(() => {
+        if (ctx) {
+            let imageData = new ImageData(pixels, width, height);
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+    }, [ctx, pixels]);
 
     //
     // const mouseDown = (e: MouseEvent<HTMLCanvasElement>) => {

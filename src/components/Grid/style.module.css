@@ -1,6 +1,5 @@
 .container {
     position: fixed;
-    background-color: red;
     image-rendering: pixelated;
 
     display: flex;

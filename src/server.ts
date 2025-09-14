@@ -19,6 +19,7 @@ app.prepare().then(() => {
 
   io.on("connection", (socket) => {
     // ...
+    console.log("got socket connection!");
   });
 
 
