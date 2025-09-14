@@ -1,48 +1,48 @@
 .colorPicker {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    justify-items: stretch;
-    gap: 0px;
-    border-radius: 2em;
-    overflow: hidden;
-    border:
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  justify-items: stretch;
+  gap: 0px;
+  border-radius: 2em;
+  overflow: hidden;
+  border:;
 }
 
 .colorContainer {
-    position: relative;
-    aspect-ratio: 1/1;
-    flex-grow: 1;
+  position: relative;
+  aspect-ratio: 1/1;
+  flex-grow: 1;
 
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
 
-    transition-property: z-index;
-    transition-duration: 0.1s;
-    transition-timing-function: linear;
-    z-index: 0;
+  transition-property: z-index;
+  transition-duration: 0.1s;
+  transition-timing-function: linear;
+  z-index: 0;
 }
 
 @media screen and (min-width: 1000px) {
-    .colorPicker {
-        grid-template-columns: repeat(16, 1fr);
-    }
+  .colorPicker {
+    grid-template-columns: repeat(16, 1fr);
+  }
 }
 
 .colorIcon {
-    position: absolute;
-    opacity: 0;
-    color: var(--selectionColor);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 0.4em;
-    background-color: var(--iconColor);
-    aspect-ratio: 1 / 1;
-    pointer-events: none;
-    overflow: visible;
-    border-radius: 50%;
-    transition: opacity 0.1s;
+  position: absolute;
+  opacity: 0;
+  color: var(--selectionColor);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.4em;
+  background-color: var(--iconColor);
+  aspect-ratio: 1 / 1;
+  pointer-events: none;
+  overflow: visible;
+  border-radius: 50%;
+  transition: opacity 0.1s;
 }
 
 .colorContainer::after {
@@ -65,74 +65,72 @@
 }
 
 @keyframes spin {
-    from {
-      transform: translate(-50%, -50%) rotateZ(0deg);
-    }
-    to {
-      transform: translate(-50%, -50%) rotateZ(360deg);
-    }
+  from {
+    transform: translate(-50%, -50%) rotateZ(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotateZ(360deg);
+  }
 }
 
 .color {
-    flex-grow: 1;
-    -webkit-appearance: none; /* For Webkit browsers (Safari, Chrome) */
-    appearance: none; /* Standard property */
-    margin: 0;
-    padding: 0;
-    transition-property: border-radius transform;
-    transition-duration: 0.1s;
-    transition-timing-function: ease-out;
-    transform: scale3d(101%, 100%, 100%);
-    background-color: var(--selectionColor);
+  flex-grow: 1;
+  -webkit-appearance: none; /* For Webkit browsers (Safari, Chrome) */
+  appearance: none; /* Standard property */
+  margin: 0;
+  padding: 0;
+  transition-property: border-radius transform;
+  transition-duration: 0.1s;
+  transition-timing-function: ease-out;
+  transform: scale3d(101%, 100%, 100%);
+  background-color: var(--selectionColor);
 }
 
-
 .colorContainer:has(input:hover) {
-    transition-duration: 0s;
-    z-index: 2;
+  transition-duration: 0s;
+  z-index: 2;
 
-    input {
-        transform: scale3d(110%, 110%, 100%);
-        border-radius: 5px;
-    }
-    input:not(:checked):not(:active) {
-        transform: scale3d(125%, 125%, 100%);
-    }
+  input {
+    transform: scale3d(110%, 110%, 100%);
+    border-radius: 5px;
+  }
+  input:not(:checked):not(:active) {
+    transform: scale3d(125%, 125%, 100%);
+  }
 }
 
 .colorContainer:has(input:active) {
-    transition-duration: 0s;
-    z-index: 2;
+  transition-duration: 0s;
+  z-index: 2;
 
-
-    input {
-        transition-duration: 0.05s;
-        transform: scale3d(105%, 105%, 100%);
-        border-radius: 5px;
-    }
-    .colorIcon {
-        transition-duration: 0.2s;
-        opacity: 1;
-    }
-    &::after {
-        transition-duration: 0.2s;
-        opacity: 1;
-    }
+  input {
+    transition-duration: 0.05s;
+    transform: scale3d(105%, 105%, 100%);
+    border-radius: 5px;
+  }
+  .colorIcon {
+    transition-duration: 0.2s;
+    opacity: 1;
+  }
+  &::after {
+    transition-duration: 0.2s;
+    opacity: 1;
+  }
 }
 
 .colorContainer:has(input:checked) {
-    transition-duration: 0.1s;
-    z-index: 1;
+  transition-duration: 0.1s;
+  z-index: 1;
 
-    input {
-        transition-duration: 0.1s;
-        transform: scale3d(110%, 110%, 100%);
-        border-radius: 5px;
-    }
-    .colorIcon {
-        opacity: 1;
-    }
-    &::after {
-        opacity: 1;
-    }
+  input {
+    transition-duration: 0.1s;
+    transform: scale3d(110%, 110%, 100%);
+    border-radius: 5px;
+  }
+  .colorIcon {
+    opacity: 1;
+  }
+  &::after {
+    opacity: 1;
+  }
 }
