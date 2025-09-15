@@ -1,22 +1,24 @@
 "use client";
 
 import { Ref, useState, useEffect, useRef, } from "react";
-import style from "./style.module.css";
-import { useEvent } from "../SocketProvider";
-import Camera from "../GridController";
+import { useEvent, useSocket } from "../SocketProvider";
 import { PixelGrid } from "@/utils/pixels";
 
 export interface GridProps {
   colors: string[];
   width: number;
   height: number;
+  scale: number;
 }
 
-export default function Grid({ colors, width, height }: GridProps) {
+export default function Grid({ colors, width, height, scale }: GridProps) {
 
-  const canvasRef: Ref<HTMLCanvasElement> = useRef(null);
+  const rawCanvasRef: Ref<HTMLCanvasElement> = useRef(null);
+  const scaledCanvasRef: Ref<HTMLCanvasElement> = useRef(null);
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const [rawCtx, setRawCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const [scaledCtx, setScaledCtx] = useState<CanvasRenderingContext2D | null>(null);
+
   const pixelsRef = useRef<PixelGrid>(null);
   const getPixels = () => {
     if (!pixelsRef.current) {
@@ -26,10 +28,24 @@ export default function Grid({ colors, width, height }: GridProps) {
   }
 
   const refresh = () => {
-    if (ctx) {
+    if (rawCtx) {
       const pixels = getPixels();
       const imageData = new ImageData(pixels, pixels.w, pixels.h);
-      ctx.putImageData(imageData, 0, 0);
+      rawCtx.putImageData(imageData, 0, 0);
+    }
+
+    updateScaledCanvas();
+  }
+
+  const updateScaledCanvas = () => {
+    const rawCanvas = rawCanvasRef.current;
+    if (scaledCtx && rawCanvas) {
+      scaledCtx.imageSmoothingEnabled = false;
+      scaledCtx.drawImage(
+        rawCanvas,
+        0, 0, width, height,
+        0, 0, width * scale, height * scale
+      )
     }
   }
 
@@ -38,18 +54,41 @@ export default function Grid({ colors, width, height }: GridProps) {
     const c = args[1] as number;
     getPixels().setPixel(c, i);
     refresh();
-  });
-
+  }, [scale]);
 
   useEffect(() => {
-    let canvas = canvasRef.current;
+    const canvas = rawCanvasRef.current;
     if (canvas) {
       const context = canvas.getContext("2d");
-      setCtx(context);
+      setRawCtx(context);
     }
-  }, [canvasRef]);
+  }, [rawCanvasRef]);
 
-  useEffect(() => refresh, [ctx])
+  useEffect(() => {
+    const canvas = scaledCanvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext("2d");
+      setScaledCtx(context);
+    }
+  }, [scaledCanvasRef]);
 
-  return <canvas width={width} height={height} ref={canvasRef} />
+  useEffect(() => {
+    const canvas = scaledCanvasRef.current;
+    if (canvas) {
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      canvas.style.transform = `scale(${1.0 / scale})`
+      updateScaledCanvas();
+    }
+  }, [scaledCanvasRef, scale]);
+
+  useEffect(() => {
+  }, [scale]);
+
+  useEffect(() => refresh, [rawCtx, scaledCtx])
+
+  return <>
+    <canvas width={width} height={height} ref={rawCanvasRef} style={{ display: "none" }} />
+    <canvas width={width * scale} height={height * scale} ref={scaledCanvasRef} style={{ transformOrigin: "top left", transform: `scale(${1.0 / scale})` }} />
+  </>
 }

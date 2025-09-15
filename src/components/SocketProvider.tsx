@@ -1,6 +1,7 @@
 "use client";
 import {
   createContext,
+  DependencyList,
   ReactNode,
   useContext,
   useEffect,
@@ -38,7 +39,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 export interface UseEventArgs {
   name: string;
 }
-export const useEvent = (name: string, on: (...arg: any) => void) => {
+export const useEvent = (name: string, on: (...arg: any) => void, deps: DependencyList = []) => {
   const socket = useContext(SocketContext);
   useEffect(() => {
     if (socket) {
@@ -48,7 +49,7 @@ export const useEvent = (name: string, on: (...arg: any) => void) => {
     return () => {
       socket?.off(name, on);
     };
-  }, [socket]);
+  }, [socket, ...deps]);
 };
 
 export const useSocket = (): Socket | null => {

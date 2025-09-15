@@ -1,4 +1,5 @@
 body, html {
   margin: 0;
   touch-action: none;
+  background-color: black;
 }

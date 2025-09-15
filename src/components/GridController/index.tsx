@@ -1,6 +1,6 @@
 "use client"
 
-import { PointerEvent as ReactPointerEvent, useEffect, useRef } from "react"
+import { PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react"
 import { useController, UseControllerProps } from "react-hook-form";
 import { FormValues } from "../Form";
 import Grid from "../Grid";
@@ -24,21 +24,27 @@ interface CameraData {
   scale: number
 }
 
-export default function GridController({ ...props }: UseControllerProps<FormValues>) {
+interface GridControllerProps {
+  width: number,
+  height: number,
+  colors: string[]
+}
 
-  const { field, fieldState } = useController(props);
+export default function GridController({ width, height, colors, ...props }:
+                                       GridControllerProps & UseControllerProps<FormValues>) {
+
+  const { field, formState } = useController(props);
 
   const zoomRef = useRef<HTMLDivElement>(null);
-  const zoomContainerRef = useRef<HTMLDivElement>(null);
-  const panRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
+
+  const [gridScale, setGridScale] = useState(5);
 
   const cameraRef = useRef<CameraData>({
     pointers: [],
     zooming: false,
     x: 0,
     y: 0,
-    scale: 5
+    scale: gridScale
   })
 
   const pointerDown = (p: ReactPointerEvent) => {
@@ -88,7 +94,31 @@ export default function GridController({ ...props }: UseControllerProps<FormValu
 
   }
 
+  const wheel = (w: WheelEvent) => {
+    w.preventDefault();
+
+    const cam = cameraRef.current;
+    cam.scale += w.deltaY * -0.1;
+    render();
+  }
+
   const applyClick = () => {
+    const box = zoomRef.current;
+    const cam = cameraRef.current;
+    if (box) {
+      const r = box.getBoundingClientRect();
+      const x = Math.floor((cam.pointers[0].ix - r.x) / cam.scale);
+      const y = Math.floor((cam.pointers[0].iy - r.y) / cam.scale);
+
+      if (x < 0 || x >= width) {
+        return;
+      }
+      if (y < 0 || y >= height) {
+        return;
+      }
+
+      field.onChange(y * width + x)
+    }
   }
 
   // apply: applies the current gesture to the camera
@@ -149,18 +179,11 @@ export default function GridController({ ...props }: UseControllerProps<FormValu
       })
     }
 
-    const pan = panRef.current;
-    if (pan) {
-      pan.style.transform = `translate(${x}px, ${y}px)`
-    }
-
     const zoom = zoomRef.current;
-    const zoomContainer = zoomContainerRef.current;
-    if (zoom && zoomContainer) {
-      zoom.style.transform = `scale(${scale})`
-      zoomContainer.style.width = `${scale * settings.width}px`;
-      zoomContainer.style.height = `${scale * settings.height}px`;
+    if (zoom) {
+      zoom.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
     }
+    setGridScale(Math.max(1, Math.floor(scale)));
 
     return true;
   }
@@ -168,26 +191,26 @@ export default function GridController({ ...props }: UseControllerProps<FormValu
   useEffect(() => {
     window.addEventListener("pointerup", pointerUp);
     window.addEventListener("pointerleave", pointerUp);
+    window.addEventListener("pointercancel", pointerUp);
     window.addEventListener("pointermove", pointerMove);
+    window.addEventListener("wheel", wheel);
     render();
 
     return () => {
       window.removeEventListener("pointerup", pointerUp);
       window.removeEventListener("pointerleave", pointerUp);
+      window.removeEventListener("pointercancel", pointerUp);
       window.removeEventListener("pointermove", pointerMove);
+      window.removeEventListener("wheel", wheel);
     }
   }, []);
 
   return (
-      <div className={styles.pan} ref={panRef}>
-
-        <div className={styles.zoomContainer} ref={zoomContainerRef}>
-          <div className={styles.zoom} ref={zoomRef} onPointerDown={pointerDown}>
-            <Grid colors={settings.colors} width={settings.width} height={settings.height} />
-          </div>
-        </div>
-
-        <div className={styles.cursor} ref={cursorRef} />
+    <div className={styles.container}>
+      <div className={styles.zoom} ref={zoomRef} style={{ width, height }} onPointerDown={pointerDown}>
+        <Grid colors={settings.colors} width={width} height={height} scale={gridScale} />
+        <div className={styles.cursor} />
       </div>
+    </div>
   )
 }
