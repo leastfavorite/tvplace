@@ -105,6 +105,7 @@
   transition-timing-function: ease-out;
   transform: scale3d(101%, 101%, 100%);
   background-color: var(--selectionColor);
+  border-radius: 0px;
 }
 
 .container:has(input:hover) {

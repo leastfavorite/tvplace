@@ -9,8 +9,30 @@
   width: 100vw;
 }
 
-.camera {
-  image-rendering: pixelated;
+.zoom canvas {
+    margin: 0;
+}
 
+.zoomContainer {
+}
+
+.zoom {
+  display: block;
+  image-rendering: pixelated;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top left;
+}
+
+.pan {
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cursor {
+    position: relative;
+    top: 0;
+    left: 0;
+    background-color: red;
+    position: absolute;
+    z-index: 999;
 }
