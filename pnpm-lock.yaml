@@ -26,12 +26,18 @@ importers:
       react-icons:
         specifier: ^5.5.0
         version: 5.5.0(react@19.1.0)
+      scheduler:
+        specifier: ^0.26.0
+        version: 0.26.0
       socket.io:
         specifier: ^4.8.1
         version: 4.8.1
       socket.io-client:
         specifier: ^4.8.1
         version: 4.8.1
+      use-context-selector:
+        specifier: ^2.0.0
+        version: 2.0.0(react@19.1.0)(scheduler@0.26.0)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2030,6 +2036,12 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  use-context-selector@2.0.0:
+    resolution: {integrity: sha512-owfuSmUNd3eNp3J9CdDl0kMgfidV+MkDvHPpvthN5ThqM+ibMccNE0k+Iq7TWC6JPFvGZqanqiGCuQx6DyV24g==}
+    peerDependencies:
+      react: '>=18.0.0'
+      scheduler: '>=0.19.0'
 
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
@@ -4235,6 +4247,11 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  use-context-selector@2.0.0(react@19.1.0)(scheduler@0.26.0):
+    dependencies:
+      react: 19.1.0
+      scheduler: 0.26.0
 
   vary@1.1.2: {}
 

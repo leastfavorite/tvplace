@@ -14,28 +14,3 @@
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: top left;
 }
-
-.pan {
-  display: block;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.cursor {
-  width: 1px;
-  height: 1px;
-  background-color: red;
-  z-index: 99;
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 50px;
-  height: 50px;
-
-  border: 3px solid black;
-  padding: 5px;
-  background-clip: content-box;
-
-  transform-origin: top left;
-  transform: scale(2%, 2%) translate(-8px, -8px);
-}

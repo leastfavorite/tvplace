@@ -235,7 +235,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
     window.addEventListener("pointerleave", pointerUp);
     window.addEventListener("pointercancel", pointerUp);
     window.addEventListener("pointermove", pointerMove);
-    window.addEventListener("wheel", wheel);
+    window.addEventListener("wheel", wheel, { passive: false });
 
     // initial centering
     const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);

@@ -106,6 +106,8 @@
   transform: scale3d(101%, 101%, 100%);
   background-color: var(--selectionColor);
   border-radius: 0px;
+
+  height: auto;
 }
 
 .container:has(input:hover) {

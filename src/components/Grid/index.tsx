@@ -11,6 +11,8 @@ export interface GridProps {
   height: number;
 }
 
+// TODO: ideally we can determine based on browser type whether
+// we want to use scaledcanvas
 export default function Grid({ colors, width, height }: GridProps) {
 
   const scale = useCameraScale();

@@ -1,0 +1,28 @@
+.cursor {
+  width: 1px;
+  height: 1px;
+  z-index: 99;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 40px;
+  height: 40px;
+
+  border: 5px solid black;
+  border-radius: 10px;
+  padding: 5px;
+  background-clip: content-box;
+
+  transform-origin: top left;
+  transform: var(--coordinate) scale(0.025) translate(-10px, -10px);
+
+  animation: breathing 2.5s linear 0s infinite;
+}
+
+@keyframes breathing {
+    0% { opacity: 0; }
+   25% { opacity: 1; }
+   75% { opacity: 1; }
+  100% { opacity: 0; }
+}

@@ -4,15 +4,14 @@ import { HiPaintBrush } from "react-icons/hi2";
 import styles from "./style.module.css";
 
 import { CSSProperties } from "react";
-import { UseControllerProps, useController } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { luminance } from "@/utils/color";
 import { FormValues } from "../Form";
 
 export default function ColorPicker({
   colors,
-  ...props
-}: { colors: string[] } & UseControllerProps<FormValues>) {
-  const { field } = useController(props);
+}: { colors: string[] }) {
+  const { register } = useFormContext<FormValues>();
 
   const colorsByLuminance = [...colors].sort(
     (a, b) => luminance(a) - luminance(b),
@@ -37,7 +36,11 @@ export default function ColorPicker({
 
           return (
             <div className={styles.container} key={i} style={cssVars}>
-              <input {...field} type="radio" value={i} />
+              <input
+                {...register("color", { required: true })}
+                type="radio"
+                value={i}
+              />
               <HiPaintBrush className={styles.icon} />
             </div>
           );
