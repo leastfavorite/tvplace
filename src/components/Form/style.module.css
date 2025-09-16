@@ -1,17 +1,17 @@
 .toolbar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
 
-    gap: 1em;
-    padding: 1em;
-    box-sizing: border-box;
+  gap: 1em;
+  padding: 1em;
+  box-sizing: border-box;
 
-    background-color: #00000080
+  background-color: #00000080;
 }
 
 .submit {
@@ -23,5 +23,4 @@
   border-radius: 2.8rem;
   border: 3px solid black;
   background-clip: content-box;
-
 }

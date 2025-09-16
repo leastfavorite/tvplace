@@ -14,8 +14,6 @@
   gap: 0px;
   border-radius: 2.5em;
   overflow: hidden;
-
-
 }
 
 .container {
@@ -57,7 +55,7 @@
 }
 
 .container::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%; /* Adjust to control distance from inner border */
   left: 50%;

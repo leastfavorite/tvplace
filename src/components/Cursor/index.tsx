@@ -1,19 +1,18 @@
-import { FormValues } from "../Form";
-import { useCameraClick } from "../Camera";
-import { CSSProperties, useEffect } from "react";
+import { FormValues } from '../Form'
+import { useCameraClick } from '../Camera'
+import { CSSProperties, useEffect } from 'react'
 
-import styles from "./style.module.css";
-import { useController, useFormContext, useWatch } from "react-hook-form";
+import styles from './style.module.css'
+import { useController, useFormContext, useWatch } from 'react-hook-form'
 
 export default function Cursor({ colors }: { colors: string[] }) {
+  const { watch } = useFormContext<FormValues>()
+  const { field } = useController({ name: 'position' })
 
-  const { watch } = useFormContext<FormValues>();
-  const { field } = useController({ name: "position" });
-
-  const click = useCameraClick();
+  const click = useCameraClick()
   const color = useWatch({
-    name: "color",
-    compute: i => colors === undefined ? "transparent" : colors[parseInt(i)]
+    name: 'color',
+    compute: (i) => (colors === undefined ? 'transparent' : colors[parseInt(i)]),
   })
 
   useEffect(() => {
@@ -22,15 +21,13 @@ export default function Cursor({ colors }: { colors: string[] }) {
     }
   }, [click])
 
-
   if (!click) {
-    return;
+    return
   }
-
 
   const style = {
     backgroundColor: color,
-    "--coordinate": `translate(${click.x}px, ${click.y}px)`
+    '--coordinate': `translate(${click.x}px, ${click.y}px)`,
   } as CSSProperties
 
   return <div className={styles.cursor} style={style} />

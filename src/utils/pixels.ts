@@ -1,78 +1,75 @@
-import { Color, colorHexToRgb } from "./color";
+import { Color, colorHexToRgb } from './color'
 
 export interface PixelGridArgs {
-  width: number;
-  height: number;
-  colors: string[];
-  init?: Uint8ClampedArray;
+  width: number
+  height: number
+  colors: string[]
+  init?: Uint8ClampedArray
 }
 
 export class PixelGrid extends Uint8ClampedArray {
-
-  w: number;
-  h: number;
-  colors: Color[];
-  hash: number;
-  packed: Uint8ClampedArray;
+  w: number
+  h: number
+  colors: Color[]
+  hash: number
+  packed: Uint8ClampedArray
 
   constructor({ width, height, colors, init }: PixelGridArgs) {
-    super(4 * width * height);
+    super(4 * width * height)
 
-    this.w = width;
-    this.h = height;
-    this.hash = 0;
+    this.w = width
+    this.h = height
+    this.hash = 0
 
-    this.packed = new Uint8ClampedArray(Math.ceil(width * height / 2));
-    this.packed.fill(0);
+    this.packed = new Uint8ClampedArray(Math.ceil((width * height) / 2))
+    this.packed.fill(0)
 
     this.colors = [...colors.map(colorHexToRgb)]
 
-    if (init && init.length === width * height / 2) {
+    if (init && init.length === (width * height) / 2) {
       // packed representation
     }
 
     for (let i = 0; i < width * height; i++) {
-      this.setPixel(0, i);
+      this.setPixel(0, i)
     }
   }
 
   setPixel(c: number, x: number, y?: number) {
-    const i = (y === undefined) ? x : y * this.w + x;
+    const i = y === undefined ? x : y * this.w + x
 
-    const COLORBITS = 4;
-    const BITMASK = (1 << COLORBITS) - 1;
+    const COLORBITS = 4
+    const BITMASK = (1 << COLORBITS) - 1
 
-    c &= BITMASK;
-    const packedLow = i % 2;
-    const packedIdx = Math.floor(i / 2);
+    c &= BITMASK
+    const packedLow = i % 2
+    const packedIdx = Math.floor(i / 2)
 
-    let oldColor = this.packed[packedIdx];
+    let oldColor = this.packed[packedIdx]
     if (packedLow) {
-      this.packed[packedIdx] &= BITMASK << COLORBITS;
-      this.packed[packedIdx] |= c;
+      this.packed[packedIdx] &= BITMASK << COLORBITS
+      this.packed[packedIdx] |= c
     } else {
-      oldColor >>= COLORBITS;
-      this.packed[packedIdx] &= BITMASK;
-      this.packed[packedIdx] |= c << COLORBITS;
+      oldColor >>= COLORBITS
+      this.packed[packedIdx] &= BITMASK
+      this.packed[packedIdx] |= c << COLORBITS
     }
-    oldColor &= BITMASK;
+    oldColor &= BITMASK
 
-    const HASHBITS = 8;
-    const HASHMASK = (1 << HASHBITS) - 1;
+    const HASHBITS = 8
+    const HASHMASK = (1 << HASHBITS) - 1
 
-    const shuffle = (i * 251) % HASHMASK + 1;
-    const rawHash = (oldColor ^ c) * shuffle;
+    const shuffle = ((i * 251) % HASHMASK) + 1
+    const rawHash = (oldColor ^ c) * shuffle
 
-    const hash = (rawHash | (rawHash >> HASHBITS)) & HASHMASK;
-    this.hash ^= hash;
+    const hash = (rawHash | (rawHash >> HASHBITS)) & HASHMASK
+    this.hash ^= hash
 
-    const color = this.colors[c];
+    const color = this.colors[c]
 
-    this[4*i + 0] = color.r
-    this[4*i + 1] = color.g
-    this[4*i + 2] = color.b
-    this[4*i + 3] = 255
-
+    this[4 * i + 0] = color.r
+    this[4 * i + 1] = color.g
+    this[4 * i + 2] = color.b
+    this[4 * i + 3] = 255
   }
 }
-

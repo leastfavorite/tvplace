@@ -30,5 +30,11 @@
     "eslint-config-next": "15.5.2",
     "tsx": "^4.20.5",
     "typescript": "^5"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 100,
+    "semi": false
   }
 }
