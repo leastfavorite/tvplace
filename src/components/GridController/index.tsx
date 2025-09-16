@@ -7,20 +7,19 @@ import Grid from "../Grid";
 
 import styles from "./style.module.css";
 import settings from "../../place.config.json";
+import Point from "@/utils/point";
 
 interface PointerData {
+  initial: Point,
+  current: Point
   id: number,
-  ix: number,
-  iy: number,
-  cx: number,
-  cy: number
 }
 
 interface CameraData {
+  mouse: Point | null,
   pointers: PointerData[],
   zooming: boolean,
-  x: number,
-  y: number,
+  pos: Point,
   scale: number
 }
 
@@ -33,45 +32,50 @@ interface GridControllerProps {
 export default function GridController({ width, height, colors, ...props }:
                                        GridControllerProps & UseControllerProps<FormValues>) {
 
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 40;
+
   const { field, formState } = useController(props);
 
   const zoomRef = useRef<HTMLDivElement>(null);
 
-  const [gridScale, setGridScale] = useState(5);
+  const [gridScale, setGridScale] = useState(1);
 
   const cameraRef = useRef<CameraData>({
     pointers: [],
+    mouse: null,
     zooming: false,
-    x: 0,
-    y: 0,
+    pos: new Point(0, 0),
     scale: gridScale
   })
 
   const pointerDown = (p: ReactPointerEvent) => {
     const cam = cameraRef.current;
     if (cam.pointers.length < 2) {
+      if (cam.pointers.length === 1) {
+        cam.zooming = true;
+        panFromGesture(true);
+      }
+
       cam.pointers.push({
         id: p.pointerId,
-        ix: p.clientX,
-        iy: p.clientY,
-        cx: p.clientX,
-        cy: p.clientY
+        initial: new Point(p.clientX, p.clientY),
+        current: new Point(p.clientX, p.clientY)
       })
-      if (cam.pointers.length === 2) {
-        cam.zooming = true;
-      }
     }
   }
 
   const pointerMove = (p: PointerEvent) => {
     const cam = cameraRef.current;
 
-    const evt = cam.pointers.find(p2 => p.pointerId === p2.id)
-    if (evt) {
-      evt.cx = p.clientX;
-      evt.cy = p.clientY;
+    if (p.isPrimary) {
+      cam.mouse = new Point(p.clientX, p.clientY);
+    }
 
-      render();
+    const pointer = cam.pointers.find(p2 => p.pointerId === p2.id)
+    if (pointer) {
+      pointer.current = new Point(p.clientX, p.clientY)
+      panFromGesture();
     }
   }
 
@@ -84,7 +88,7 @@ export default function GridController({ width, height, colors, ...props }:
     }
 
     if (cam.pointers.length > 0) {
-      render(true) || applyClick();
+      panFromGesture(true) || applyClick();
     }
 
     cam.pointers.splice(idx, 1);
@@ -98,92 +102,112 @@ export default function GridController({ width, height, colors, ...props }:
     w.preventDefault();
 
     const cam = cameraRef.current;
-    cam.scale += w.deltaY * -0.1;
-    render();
+    const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);
+
+    renderMove({
+      from: cam.mouse || screenCenter,
+      scale: cam.scale + w.deltaY * -0.1,
+      apply: true
+    })
   }
 
   const applyClick = () => {
     const box = zoomRef.current;
     const cam = cameraRef.current;
+
     if (box) {
-      const r = box.getBoundingClientRect();
-      const x = Math.floor((cam.pointers[0].ix - r.x) / cam.scale);
-      const y = Math.floor((cam.pointers[0].iy - r.y) / cam.scale);
+      const rect = box.getBoundingClientRect();
+      const topLeftCorner = new Point(rect.x, rect.y);
 
-      if (x < 0 || x >= width) {
+      const pixel = cam.pointers[0].initial.minus(topLeftCorner).over(cam.scale).floor();
+
+      if (pixel.x < 0 || pixel.x >= width) {
+        return
+      }
+      if (pixel.y < 0 || pixel.y >= height) {
         return;
       }
-      if (y < 0 || y >= height) {
-        return;
-      }
 
-      field.onChange(y * width + x)
+      field.onChange(pixel.y * width + pixel.x)
     }
   }
 
-  // apply: applies the current gesture to the camera
-  // returns *true* if the
-  const render = (apply: boolean = false): boolean => {
+  interface MoveArgs {
+    from?: Point,
+    to?: Point,
+    scale?: number,
+    scalingFactor?: number
+    apply?: boolean
+  }
+
+  const renderMove = ({ from, to, scale, scalingFactor, apply = false }: MoveArgs) => {
     const cam = cameraRef.current;
 
-    let x = cam.x;
-    let y = cam.y;
+    from = from || new Point(0, 0);
+    to = to || from;
 
-    let scale = cam.scale;
-
-    if (cam.pointers.length === 2) {
-      const p1 = cam.pointers[0]
-      const p2 = cam.pointers[1]
-
-      const ix = (p1.ix + p2.ix) / 2;
-      const iy = (p1.iy + p2.iy) / 2;
-      const cx = (p1.cx + p2.cx) / 2;
-      const cy = (p1.cy + p2.cy) / 2;
-
-      const dcx = p2.cx - p1.cx;
-      const dcy = p2.cy - p1.cy
-      const dix = p2.ix - p1.ix
-      const diy = p2.iy - p1.iy
-
-      const dc = dcx * dcx + dcy * dcy;
-      const di = dix * dix + diy * diy;
-
-      const scaleFactor = Math.sqrt(dc / di);
-      scale *= scaleFactor;
-
-      x = cx - scaleFactor * (ix - cam.x)
-      y = cy - scaleFactor * (iy - cam.y)
-
-    } else if (cam.pointers.length === 1) {
-      const p = cam.pointers[0]
-
-      const dx = p.cx - p.ix;
-      const dy = p.cy - p.iy;
-
-      if (!cam.zooming && (dx * dx + dy * dy < cam.scale * cam.scale)) {
-        return false;
+    if (!scale) {
+      if (scalingFactor) {
+        scale = cam.scale * scalingFactor
+      } else {
+        scale = cam.scale;
+        scalingFactor = 1;
       }
-
-      x += dx;
-      y += dy;
     }
 
+    scale = Math.max(Math.min(scale, MAX_SCALE), MIN_SCALE);
+    scalingFactor = scale / cam.scale;
+
+    const pos = cam.pos.minus(from).times(scalingFactor).plus(to)
+
     if (apply) {
-      cam.x = x;
-      cam.y = y;
+      cam.pos = pos
       cam.scale = scale;
 
       cam.pointers.forEach((p) => {
-        p.ix = p.cx;
-        p.iy = p.cy;
+        p.initial = p.current;
       })
     }
 
     const zoom = zoomRef.current;
     if (zoom) {
-      zoom.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
+      zoom.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`
     }
     setGridScale(Math.max(1, Math.floor(scale)));
+
+  }
+
+  // applies the current gesture to the zoom container
+  // returns true if the gesture was applied
+  const panFromGesture = (apply: boolean = false): boolean => {
+    const cam = cameraRef.current;
+
+    if (cam.pointers.length === 2) {
+
+      const p1 = cam.pointers[0]
+      const p2 = cam.pointers[1]
+
+      const initial = p1.initial.avg(p2.initial);
+      const current = p2.current.avg(p1.current);
+
+      const currentDist = p2.current.minus(p1.current).norm();
+      const initialDist = p2.initial.minus(p1.initial).norm();
+
+      let scalingFactor = currentDist / initialDist;
+
+      renderMove({ from: initial, to: current, scalingFactor, apply })
+
+    } else if (cam.pointers.length === 1) {
+      const p = cam.pointers[0]
+
+      const distance = p.current.minus(p.initial).norm();
+
+      if (!cam.zooming && distance < cam.scale) {
+        return false;
+      }
+
+      renderMove({ from: p.initial, to: p.current, apply })
+    }
 
     return true;
   }
@@ -194,7 +218,20 @@ export default function GridController({ width, height, colors, ...props }:
     window.addEventListener("pointercancel", pointerUp);
     window.addEventListener("pointermove", pointerMove);
     window.addEventListener("wheel", wheel);
-    render();
+
+    // initial centering
+    const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);
+    const gridCenter = new Point(width, height).over(2)
+
+    const scale = Math.min(window.innerWidth / width, window.innerHeight / height)
+    renderMove({
+      from: gridCenter,
+      to: screenCenter,
+      scale,
+      apply: true
+    })
+
+    // TODO: on init, load values
 
     return () => {
       window.removeEventListener("pointerup", pointerUp);
