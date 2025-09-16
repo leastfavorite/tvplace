@@ -1,17 +1,19 @@
 "use client";
 
 import { Ref, useState, useEffect, useRef, } from "react";
-import { useEvent, useSocket } from "../SocketProvider";
+import { useEvent } from "../SocketProvider";
 import { PixelGrid } from "@/utils/pixels";
+import { useCameraScale } from "../Camera";
 
 export interface GridProps {
   colors: string[];
   width: number;
   height: number;
-  scale: number;
 }
 
-export default function Grid({ colors, width, height, scale }: GridProps) {
+export default function Grid({ colors, width, height }: GridProps) {
+
+  const scale = useCameraScale();
 
   const rawCanvasRef: Ref<HTMLCanvasElement> = useRef(null);
   const scaledCanvasRef: Ref<HTMLCanvasElement> = useRef(null);

@@ -1,13 +1,13 @@
 "use client";
 import ColorPicker from "@/components/ColorPicker";
-import Grid from "@/components/Grid";
 import { useForm } from "react-hook-form";
 
 import settings from "../../place.config.json" with { type: "json" };
 import { SocketProvider } from "@/components/SocketProvider";
 
 import styles from "./style.module.css";
-import GridController from "../GridController";
+import Camera from "../Camera";
+import Grid from "../Grid";
 
 export type FormValues = {
   color: string;
@@ -26,14 +26,18 @@ export default function Form() {
   return (
     <SocketProvider>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <GridController
-          control={control}
-          colors={settings.colors}
+        <Camera
           width={settings.width}
           height={settings.height}
-          name="coords"
-          rules={{ required: true }}
-        />
+        >
+          <Grid
+            colors={settings.colors}
+            width={settings.width}
+            height={settings.height}
+          />
+          <div className={styles.cursor} />
+
+        </Camera>
         <div className={styles.toolbarContainer}>
           <div className={styles.toolbar}>
             <ColorPicker control={control} colors={settings.colors} name="color" rules={{ required: true }} />

@@ -1,12 +1,8 @@
 "use client"
 
-import { PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react"
-import { useController, UseControllerProps } from "react-hook-form";
-import { FormValues } from "../Form";
-import Grid from "../Grid";
+import { createContext, PropsWithChildren, PointerEvent as ReactPointerEvent, useContext, useEffect, useRef, useState } from "react"
 
 import styles from "./style.module.css";
-import settings from "../../place.config.json";
 import Point from "@/utils/point";
 
 interface PointerData {
@@ -23,23 +19,39 @@ interface CameraData {
   scale: number
 }
 
-interface GridControllerProps {
+interface CameraProps {
   width: number,
-  height: number,
-  colors: string[]
+  height: number
 }
 
-export default function GridController({ width, height, colors, ...props }:
-                                       GridControllerProps & UseControllerProps<FormValues>) {
+const CameraScaleContext = createContext<number | undefined>(undefined);
+const CameraClickContext = createContext<Point | null | undefined>(undefined);
+
+export function useCameraScale() {
+  let size = useContext(CameraScaleContext);
+  if (size === undefined) {
+    throw new Error("useCameraScale() must be used inside a camera");
+  }
+  return size
+}
+
+export function useCameraClick() {
+  let click = useContext(CameraClickContext);
+  if (click === undefined) {
+    throw new Error("useCameraClick() must be used inside a camera");
+  }
+  return click
+}
+
+export default function Camera({ width, height, children }: PropsWithChildren<CameraProps>) {
 
   const MIN_SCALE = 1;
   const MAX_SCALE = 40;
 
-  const { field, formState } = useController(props);
-
   const zoomRef = useRef<HTMLDivElement>(null);
 
   const [gridScale, setGridScale] = useState(1);
+  const [click, setClick] = useState<Point | null>(null);
 
   const cameraRef = useRef<CameraData>({
     pointers: [],
@@ -128,7 +140,7 @@ export default function GridController({ width, height, colors, ...props }:
         return;
       }
 
-      field.onChange(pixel.y * width + pixel.x)
+      setClick(pixel);
     }
   }
 
@@ -137,10 +149,11 @@ export default function GridController({ width, height, colors, ...props }:
     to?: Point,
     scale?: number,
     scalingFactor?: number
-    apply?: boolean
+    apply?: boolean,
+    doTransition?: boolean
   }
 
-  const renderMove = ({ from, to, scale, scalingFactor, apply = false }: MoveArgs) => {
+  const renderMove = ({ from, to, scale, scalingFactor, apply=false, doTransition=true }: MoveArgs) => {
     const cam = cameraRef.current;
 
     from = from || new Point(0, 0);
@@ -169,8 +182,13 @@ export default function GridController({ width, height, colors, ...props }:
       })
     }
 
+
     const zoom = zoomRef.current;
     if (zoom) {
+      if (!doTransition) {
+        zoom.style.transition = "none";
+        requestAnimationFrame(() => zoom.style.removeProperty("transition"))
+      }
       zoom.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`
     }
     setGridScale(Math.max(1, Math.floor(scale)));
@@ -222,16 +240,14 @@ export default function GridController({ width, height, colors, ...props }:
     // initial centering
     const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);
     const gridCenter = new Point(width, height).over(2)
-
     const scale = Math.min(window.innerWidth / width, window.innerHeight / height)
     renderMove({
       from: gridCenter,
       to: screenCenter,
       scale,
-      apply: true
+      apply: true,
+      doTransition: false
     })
-
-    // TODO: on init, load values
 
     return () => {
       window.removeEventListener("pointerup", pointerUp);
@@ -245,8 +261,11 @@ export default function GridController({ width, height, colors, ...props }:
   return (
     <div className={styles.container}>
       <div className={styles.zoom} ref={zoomRef} style={{ width, height }} onPointerDown={pointerDown}>
-        <Grid colors={settings.colors} width={width} height={height} scale={gridScale} />
-        <div className={styles.cursor} />
+        <CameraScaleContext.Provider value={gridScale}>
+          <CameraClickContext.Provider value={click}>
+            {children}
+          </CameraClickContext.Provider>
+        </CameraScaleContext.Provider>
       </div>
     </div>
   )
