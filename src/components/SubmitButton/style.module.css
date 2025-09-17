@@ -1,0 +1,57 @@
+.button {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.25em 0.25em;
+    justify-content: center;
+    border-radius: 1em;
+    border: none;
+    font-family: "Kode Mono", monospace;
+    white-space: pre;
+    font-size: 0.7em;
+    flex-wrap: wrap;
+}
+
+.button p {
+  margin: 0;
+}
+
+.action {
+  padding: 0em;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  transform: translate(0em, -0.2em);
+}
+
+.action::after {
+  content: " ";
+  white-space: pre;
+}
+
+.color {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: 0.1em;
+  padding: 2px;
+  background-clip: content-box;
+  border: 2px solid black;
+  border-radius: 4px;
+  transform: translate(-0.1em, 4px);
+  background-color: blue;
+}
+
+@media (min-width: 770px) {
+  .action::after {
+    content: "";
+  }
+
+  .button {
+    flex-direction: column;
+  }
+
+  .action {
+    font-size: 1.5rem;
+  }
+}
