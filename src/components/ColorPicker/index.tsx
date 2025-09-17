@@ -19,23 +19,21 @@ export default function ColorPicker({ colors }: { colors: string[] }) {
   const contrastThreshold = 2 * Math.sqrt(luminance(brightest) * luminance(darkest))
 
   return (
-    <div className={styles.pickerContainer}>
-      <div className={styles.picker}>
-        {colors.map((c, i) => {
-          const iconColor = luminance(c) < contrastThreshold ? brightest : darkest
-          const cssVars = {
-            '--selectionColor': c,
-            '--iconColor': iconColor,
-          } as CSSProperties
+    <div className={styles.picker}>
+      {colors.map((c, i) => {
+        const iconColor = luminance(c) < contrastThreshold ? brightest : darkest
+        const cssVars = {
+          '--selectionColor': c,
+          '--iconColor': iconColor,
+        } as CSSProperties
 
-          return (
-            <div className={styles.container} key={i} style={cssVars}>
-              <input {...register('color', { required: true })} type="radio" value={i} />
-              <HiPaintBrush className={styles.icon} />
-            </div>
-          )
-        })}
-      </div>
+        return (
+          <div className={styles.container} key={i} style={cssVars}>
+            <input {...register('color', { required: true })} type="radio" value={i} />
+            <HiPaintBrush className={styles.icon} />
+          </div>
+        )
+      })}
     </div>
   )
 }

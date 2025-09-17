@@ -1,4 +1,4 @@
-import { FormValues } from '../Form'
+import { FormValues, useColor } from '../Form'
 import { useCameraClick } from '../Camera'
 import { CSSProperties, useEffect } from 'react'
 
@@ -10,10 +10,7 @@ export default function Cursor({ colors }: { colors: string[] }) {
   const { field } = useController({ name: 'position' })
 
   const click = useCameraClick()
-  const color = useWatch({
-    name: 'color',
-    compute: (i) => (colors === undefined ? 'transparent' : colors[parseInt(i)]),
-  })
+  const color = useColor();
 
   useEffect(() => {
     if (click) {

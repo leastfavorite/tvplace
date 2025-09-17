@@ -8,13 +8,20 @@ import styles from './style.module.css'
 import Camera from '../Camera'
 import Grid from '../Grid'
 import Point from '@/utils/point'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Cursor from '../Cursor'
-import Loader from '../Loader'
+import SubmitButton from '../SubmitButton'
 
 export type FormValues = {
   color: string
   position: Point
+}
+
+export function useColor(orElse: string = 'transparent') {
+  return useWatch({
+    name: 'color',
+    compute: (i) => (i === undefined ? orElse : settings.colors[parseInt(i)]),
+  })
 }
 
 export default function Form() {
@@ -34,12 +41,20 @@ export default function Form() {
           </Camera>
           <div className={styles.toolbarContainer}>
             <div className={styles.toolbar}>
-              <ColorPicker colors={settings.colors} />
-              <input className={styles.submit} type="submit" />
+              <div className={`${styles.border} ${styles.grow}`}>
+                <ColorPicker colors={settings.colors} />
+              </div>
+              <div>
+                <div className={styles.border}>
+                  <input className={styles.nameInput} maxLength={10} placeholder="enter name..." type="text" />
+                </div>
+                <div className={`${styles.border} ${styles.grow}`}>
+                  <SubmitButton />
+                </div>
+              </div>
             </div>
           </div>
         </form>
-        <Loader />
       </FormProvider>
     </SocketProvider>
   )

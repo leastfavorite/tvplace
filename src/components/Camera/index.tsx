@@ -70,6 +70,9 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
 
   const pointerDown = (p: ReactPointerEvent) => {
     const cam = cameraRef.current
+    if (cam.pointers.findIndex(p2 => p.pointerId === p2.id) !== -1) {
+      return
+    }
     if (cam.pointers.length < 2) {
       if (cam.pointers.length === 1) {
         cam.zooming = true
@@ -146,6 +149,17 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
         return
       }
 
+      const pixelInScreenSpace = topLeftCorner.plus(pixel.plus(new Point(0.5, 0.5)).times(cam.scale))
+      const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);
+
+      renderMove({
+        from: pixelInScreenSpace,
+        to: screenCenter,
+        scale: MAX_SCALE / 2,
+        apply: true,
+        transitionSpeed: '3s'
+      })
+
       setClick(pixel)
     }
   }
@@ -156,7 +170,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
     scale?: number
     scalingFactor?: number
     apply?: boolean
-    doTransition?: boolean
+    transitionSpeed?: string
   }
 
   const renderMove = ({
@@ -165,7 +179,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
     scale,
     scalingFactor,
     apply = false,
-    doTransition = true,
+    transitionSpeed = "0.6s",
   }: MoveArgs) => {
     const cam = cameraRef.current
 
@@ -197,10 +211,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
 
     const zoom = zoomRef.current
     if (zoom) {
-      if (!doTransition) {
-        zoom.style.transition = 'none'
-        requestAnimationFrame(() => zoom.style.removeProperty('transition'))
-      }
+      zoom.style.transitionDuration = transitionSpeed;
       zoom.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`
     }
     setGridScale(Math.max(1, Math.floor(scale)))
@@ -255,7 +266,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
       to: screenCenter,
       scale,
       apply: true,
-      doTransition: false,
+      transitionSpeed: "0s",
     })
 
     return () => {

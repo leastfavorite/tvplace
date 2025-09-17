@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "tsx src/server.ts",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "NODE_ENV=production tsx server.js",
     "lint": "eslint"
   },
   "dependencies": {
+    "@next/font": "^14.2.15",
     "next": "15.5.2",
     "prettier": "^3.6.2",
     "react": "19.1.0",

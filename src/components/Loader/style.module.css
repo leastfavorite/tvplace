@@ -1,12 +1,9 @@
 .loader {
-  width: 500px;
-  height: 500px;
+  aspect-ratio: 1/1;
+  flex-grow: 1;
   border-radius: 50%;
-  position: fixed;
   background-color: white;
-  animation-name: wedge;
-  animation-fill-mode: forwards;
-  animation-timing-function: linear;
+  animation: wedge 15s linear 0s 1 forwards;
 }
 
 @keyframes wedge {
