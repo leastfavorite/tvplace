@@ -1,12 +1,11 @@
-import { FormValues, useColor } from '../Form'
+import { useColor } from '../Form'
 import { useCameraClick } from '../Camera'
 import { CSSProperties, useEffect } from 'react'
 
 import styles from './style.module.css'
-import { useController, useFormContext, useWatch } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
-export default function Cursor({ colors }: { colors: string[] }) {
-  const { watch } = useFormContext<FormValues>()
+export default function Cursor() {
   const { field } = useController({ name: 'position' })
 
   const click = useCameraClick()
@@ -16,7 +15,7 @@ export default function Cursor({ colors }: { colors: string[] }) {
     if (click) {
       field.onChange(click)
     }
-  }, [click])
+  }, [click, field])
 
   if (!click) {
     return

@@ -1,6 +1,6 @@
 'use client'
 
-import { Ref, useState, useEffect, useRef } from 'react'
+import { Ref, useState, useEffect, useRef, useCallback } from 'react'
 import { useEvent } from '../SocketProvider'
 import { PixelGrid } from '@/utils/pixels'
 import { useCameraScale } from '../Camera'
@@ -23,14 +23,23 @@ export default function Grid({ colors, width, height }: GridProps) {
   const [scaledCtx, setScaledCtx] = useState<CanvasRenderingContext2D | null>(null)
 
   const pixelsRef = useRef<PixelGrid>(null)
-  const getPixels = () => {
+  const getPixels = useCallback(() => {
     if (!pixelsRef.current) {
       pixelsRef.current = new PixelGrid({ width, height, colors })
     }
     return pixelsRef.current
-  }
+  }, [colors, height, width]);
 
-  const refresh = () => {
+  const updateScaledCanvas = useCallback(() => {
+    const rawCanvas = rawCanvasRef.current
+    if (scaledCtx && rawCanvas) {
+      scaledCtx.imageSmoothingEnabled = false
+      scaledCtx.drawImage(rawCanvas, 0, 0, width, height, 0, 0, width * scale, height * scale)
+    }
+  }, [scaledCtx, width, height, scale]);
+
+
+  const refresh = useCallback(() => {
     if (rawCtx) {
       const pixels = getPixels()
       const imageData = new ImageData(pixels, pixels.w, pixels.h)
@@ -38,25 +47,16 @@ export default function Grid({ colors, width, height }: GridProps) {
     }
 
     updateScaledCanvas()
-  }
-
-  const updateScaledCanvas = () => {
-    const rawCanvas = rawCanvasRef.current
-    if (scaledCtx && rawCanvas) {
-      scaledCtx.imageSmoothingEnabled = false
-      scaledCtx.drawImage(rawCanvas, 0, 0, width, height, 0, 0, width * scale, height * scale)
-    }
-  }
+  }, [rawCtx, updateScaledCanvas, getPixels])
 
   useEvent(
     'p',
-    (args) => {
+    useCallback((args: [number, number]) => {
       const i = args[0] as number
       const c = args[1] as number
       getPixels().setPixel(c, i)
       refresh()
-    },
-    [scale],
+    }, [getPixels, refresh])
   )
 
   useEffect(() => {
@@ -83,11 +83,11 @@ export default function Grid({ colors, width, height }: GridProps) {
       canvas.style.transform = `scale(${1.0 / scale})`
       updateScaledCanvas()
     }
-  }, [scaledCanvasRef, scale])
+  }, [scaledCanvasRef, scale, width, height, updateScaledCanvas])
 
   useEffect(() => {}, [scale])
 
-  useEffect(() => refresh, [rawCtx, scaledCtx])
+  useEffect(() => refresh, [refresh, rawCtx, scaledCtx])
 
   return (
     <>

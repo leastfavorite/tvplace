@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx src/server.ts",
     "build": "next build --turbopack",
-    "start": "NODE_ENV=production tsx server.js",
+    "start": "NODE_ENV=production tsx src/server.ts",
     "lint": "eslint"
   },
   "dependencies": {

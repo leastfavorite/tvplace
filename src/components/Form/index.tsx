@@ -36,7 +36,7 @@ export default function Form() {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <Camera width={settings.width} height={settings.height}>
             <Grid colors={settings.colors} width={settings.width} height={settings.height} />
-            <Cursor colors={settings.colors} />
+            <Cursor />
             <div className={styles.cursor} />
           </Camera>
           <div className={styles.toolbarContainer}>

@@ -1,7 +1,6 @@
 'use client'
 import {
   createContext,
-  DependencyList,
   ReactNode,
   useContext,
   useEffect,
@@ -17,16 +16,17 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const socketRef = useRef<Socket>(null)
 
   useEffect(() => {
+    let socket: Socket;
     if (!socketRef.current) {
-      const socket = io()
+      socket = io()
       socketRef.current = socket
       setSocket(socket)
 
       socket.on('connect', () => console.log('connected!'))
     }
-    ;() => {
-      if (socketRef.current) {
-        socketRef.current.disconnect()
+    return () => {
+      if (socket) {
+        socket.disconnect();
         setSocket(null)
       }
     }
@@ -37,7 +37,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 export interface UseEventArgs {
   name: string
 }
-export const useEvent = (name: string, on: (...arg: any) => void, deps: DependencyList = []) => {
+export function useEvent<T>(name: string, on: (arg: T) => void) {
+
   const socket = useContext(SocketContext)
   useEffect(() => {
     if (socket) {
@@ -47,7 +48,7 @@ export const useEvent = (name: string, on: (...arg: any) => void, deps: Dependen
     return () => {
       socket?.off(name, on)
     }
-  }, [socket, ...deps])
+  }, [socket, on, name])
 }
 
 export const useSocket = (): Socket | null => {

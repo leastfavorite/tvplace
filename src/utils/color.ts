@@ -25,7 +25,7 @@ export const rgbToSRGB = (c: Color): Color => {
 }
 
 export const sRGBToLinear = (c: Color): Color => {
-  let transfer = (p: number) => {
+  const transfer = (p: number) => {
     if (p < 0.04045) {
       return p / 12.92
     }

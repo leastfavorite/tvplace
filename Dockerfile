@@ -13,6 +13,6 @@ RUN pnpm run build
 
 EXPOSE 3000
 
-RUN ["pnpm", "run", "start"]
+CMD ["pnpm", "run", "start"]
 
 # Define the command to run your application
