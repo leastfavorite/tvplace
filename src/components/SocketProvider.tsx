@@ -20,7 +20,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     if (!socketRef.current) {
       socket = io()
       socketRef.current = socket
-      setSocket(socket)
+      setSocket(socketRef.current)
 
       socket.on('connect', () => console.log('connected!'))
     }
@@ -37,7 +37,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 export interface UseEventArgs {
   name: string
 }
-export function useEvent<T>(name: string, on: (arg: T) => void) {
+export function useEvent<T>(name: string, on: (...args: any[]) => void) {
 
   const socket = useContext(SocketContext)
   useEffect(() => {

@@ -7,4 +7,8 @@ html {
   --background-grid-color: #101217;
   --background-grid-thickness: 3px;
   --background-grid-size: 32px;
+
+  --border-color: black;
+  --button-color: lightgray;
+  --input-color: lightgray;
 }

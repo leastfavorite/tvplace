@@ -11,6 +11,9 @@
     white-space: pre;
     font-size: 0.7em;
     flex-wrap: wrap;
+
+    background-color: var(--button-color);
+    color: var(--border-color);
 }
 
 .button p {
@@ -36,7 +39,7 @@
   margin-left: 0.1em;
   padding: 2px;
   background-clip: content-box;
-  border: 2px solid black;
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   transform: translate(-0.1em, 4px);
   background-color: blue;

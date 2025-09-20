@@ -18,12 +18,10 @@ export default function SubmitButton() {
       const xPad = settings.width.toString().length;
       const yPad = settings.height.toString().length;
 
-      console.log(xPad, yPad)
       const x = (p ? p.x.toString() : "").padStart(xPad, " ")
       const y = (p ? p.y.toString() : "").padStart(yPad, " ")
 
       const result = `@ [${x}, ${y}]`
-      console.log(result)
       return result
     }
   }) as string;

@@ -4,7 +4,7 @@ export interface PixelGridArgs {
   width: number
   height: number
   colors: string[]
-  init?: Uint8ClampedArray
+  init?: ArrayBuffer
 }
 
 export class PixelGrid extends Uint8ClampedArray {
@@ -26,17 +26,24 @@ export class PixelGrid extends Uint8ClampedArray {
 
     this.colors = [...colors.map(colorHexToRgb)]
 
-    if (init && init.length === (width * height) / 2) {
+    if (init && init.byteLength === (width * height) / 2) {
       // packed representation
-    }
-
-    for (let i = 0; i < width * height; i++) {
-      this.setPixel(0, i)
+      const newPixels = new Uint8ClampedArray(init);
+      for (let i = 0; i < width * height / 2; i ++) {
+        const b = newPixels[i];
+        // TODO: cleanup
+        this.setPixel(b & 15, 2 * i + 1)
+        this.setPixel((b >> 4) & 15, 2 * i)
+      }
+    } else {
+      for (let i = 0; i < width * height; i++) {
+        this.setPixel(0, i)
+      }
     }
   }
 
   setPixel(c: number, x: number, y?: number) {
-    const i = y === undefined ? x : y * this.w + x
+    const i = (y === undefined) ? x : y * this.w + x
 
     const COLORBITS = 4
     const BITMASK = (1 << COLORBITS) - 1

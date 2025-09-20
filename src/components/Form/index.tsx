@@ -2,7 +2,7 @@
 import ColorPicker from '@/components/ColorPicker'
 
 import settings from '../../place.config.json' with { type: 'json' }
-import { SocketProvider } from '@/components/SocketProvider'
+import { useSocket } from '@/components/SocketProvider'
 
 import styles from './style.module.css'
 import Camera from '../Camera'
@@ -11,6 +11,7 @@ import Point from '@/utils/point'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Cursor from '../Cursor'
 import SubmitButton from '../SubmitButton'
+import { useCallback } from 'react'
 
 export type FormValues = {
   color: string
@@ -25,19 +26,25 @@ export function useColor(orElse: string = 'transparent') {
 }
 
 export default function Form() {
+  const socket = useSocket();
+
   const methods = useForm<FormValues>({
     mode: 'onChange',
   })
-  const onSubmit = (data: FormValues) => console.log(data)
+  const onSubmit = useCallback((data: FormValues) => {
+    if (socket) {
+      socket.emit('p',
+                  parseInt(data.color),
+                  data.position.y * settings.width + data.position.x)
+    }
+  }, [socket])
 
   return (
-    <SocketProvider>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <Camera width={settings.width} height={settings.height}>
-            <Grid colors={settings.colors} width={settings.width} height={settings.height} />
+          <Camera>
+            <Grid />
             <Cursor />
-            <div className={styles.cursor} />
           </Camera>
           <div className={styles.toolbarContainer}>
             <div className={styles.toolbar}>
@@ -56,6 +63,5 @@ export default function Form() {
           </div>
         </form>
       </FormProvider>
-    </SocketProvider>
   )
 }

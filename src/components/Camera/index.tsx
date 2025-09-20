@@ -14,6 +14,8 @@ import {
 import styles from './style.module.css'
 import Point from '@/utils/point'
 
+import settings from '@/place.config.json'
+
 interface PointerData {
   initial: Point
   current: Point
@@ -26,11 +28,6 @@ interface CameraData {
   zooming: boolean
   pos: Point
   scale: number
-}
-
-interface CameraProps {
-  width: number
-  height: number
 }
 
 const CameraScaleContext = createContext<number | undefined>(undefined)
@@ -52,7 +49,10 @@ export function useCameraClick() {
   return click
 }
 
-export default function Camera({ width, height, children }: PropsWithChildren<CameraProps>) {
+export default function Camera({ children }: PropsWithChildren) {
+  const width = settings.width;
+  const height = settings.height;
+
   const MIN_SCALE = 1
   const MAX_SCALE = 40
 
@@ -195,7 +195,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
 
       setClick(pixel)
     }
-  }, [height, width, renderMove]);
+  }, [renderMove]);
 
   interface MoveArgs {
     from?: Point
@@ -280,7 +280,7 @@ export default function Camera({ width, height, children }: PropsWithChildren<Ca
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('wheel', wheel)
     }
-  }, [applyClick, renderMove, panFromGesture, width, height])
+  }, [applyClick, renderMove, panFromGesture])
 
   return (
     <div className={styles.container}>

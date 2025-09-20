@@ -48,14 +48,14 @@
   text-align: center;
   border-radius: 0.75rem;
   border: 3px solid transparent;
-  background-color: lightgray;
-  width: 10em;
+  background-color: var(--input-color);
   box-sizing: border-box;
+  width: 12em;
 }
 
 .nameInput:focus {
   outline: none;
-  border: 3px solid black;
+  border: 3px solid var(--border-color);
 }
 
 .nameInput::placeholder {
@@ -67,13 +67,27 @@
   opacity: 0;
 }
 
+@media (max-width: 500px) {
+  .toolbar {
+    --gap: 0.5em;
+  }
+  .nameInput {
+    font-size: 1em;
+  }
+}
+
 @media (min-width: 700px) {
   .toolbar {
     flex-direction: row;
+    --gap: 1em;
   }
 
   .toolbar > div:not(.border) {
     flex-direction: column;
+  }
+
+  .nameInput {
+    width: 10em;
   }
 
 }
