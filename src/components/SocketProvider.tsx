@@ -7,7 +7,9 @@ import {
   useRef,
   useState,
 } from 'react'
-import { io, Socket } from 'socket.io-client'
+import { io, Socket as IoSocket } from 'socket.io-client'
+
+type Socket = IoSocket<ServerToClientEvents, ClientToServerEvents>
 
 const SocketContext = createContext<Socket | null>(null)
 
@@ -21,8 +23,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       socket = io()
       socketRef.current = socket
       setSocket(socketRef.current)
-
-      socket.on('connect', () => console.log('connected!'))
     }
     return () => {
       if (socket) {
@@ -37,16 +37,22 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 export interface UseEventArgs {
   name: string
 }
-export function useEvent<T>(name: string, on: (...args: any[]) => void) {
+
+// if this were enterprise code i would not disable the typechecking like this.
+// i would slack my boss about it, and i would pray he has the cunning
+// to slay this hydra
+export function useEvent<K extends keyof ServerToClientEvents>(name: K, on: ServerToClientEvents[K]) {
 
   const socket = useContext(SocketContext)
   useEffect(() => {
     if (socket) {
-      socket.on(name, on)
+      // eslint-disable-next-line
+      socket.on(name, on as any)
     }
 
     return () => {
-      socket?.off(name, on)
+      // eslint-disable-next-line
+      socket?.off(name, on as any)
     }
   }, [socket, on, name])
 }

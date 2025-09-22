@@ -68,7 +68,7 @@ export default function Grid() {
 
   useEvent(
     'r',
-    useCallback((newPixels: ArrayBuffer) => {
+    useCallback((newPixels: ArrayBufferLike) => {
       pixelsRef.current = new PixelGrid(
         { width, height, colors, init: newPixels })
       refresh()

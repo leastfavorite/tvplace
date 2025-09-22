@@ -4,7 +4,7 @@ export interface PixelGridArgs {
   width: number
   height: number
   colors: string[]
-  init?: ArrayBuffer
+  init?: ArrayBufferLike
 }
 
 export class PixelGrid extends Uint8ClampedArray {

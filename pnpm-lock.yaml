@@ -11,6 +11,9 @@ importers:
       '@next/font':
         specifier: ^14.2.15
         version: 14.2.15(next@15.5.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      '@socket.io/component-emitter':
+        specifier: ^3.1.2
+        version: 3.1.2
       canvas:
         specifier: ^3.2.0
         version: 3.2.0
