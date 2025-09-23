@@ -5,7 +5,6 @@ import Point from "@/utils/point";
 
 import settings from "../../place.config.json"
 import { CSSProperties, useEffect, useState } from "react";
-import { useEvent } from "../SocketProvider";
 
 export function UnlockedButton() {
   const color = useColor();

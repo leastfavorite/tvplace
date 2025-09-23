@@ -2,7 +2,7 @@
 import ColorPicker from '@/components/ColorPicker'
 
 import settings from '../../place.config.json' with { type: 'json' }
-import { useSocket } from '@/components/SocketProvider'
+import { useEvent, useSocket } from '@/components/SocketProvider'
 
 import styles from './style.module.css'
 import Camera from '../Camera'
@@ -29,16 +29,17 @@ export default function Form() {
   const socket = useSocket();
 
   const [unlockTime, setUnlockTime] = useState(0);
+  useEvent('c', setUnlockTime)
 
   const methods = useForm<FormValues>({
     mode: 'onChange',
   })
+
   const onSubmit = useCallback((data: FormValues) => {
     if (socket) {
       socket.emit('p',
                   parseInt(data.color),
-                  data.position.y * settings.width + data.position.x,
-                  setUnlockTime)
+                  data.position.y * settings.width + data.position.x)
     }
   }, [socket])
 

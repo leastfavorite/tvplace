@@ -19,5 +19,6 @@
     "#CF6EE4",
     "#820080"
   ],
-  "cooldown": 300
+  "cooldown": 15,
+  "maxSessionsPerIp": 2
 }

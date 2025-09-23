@@ -18,9 +18,16 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const socketRef = useRef<Socket>(null)
 
   useEffect(() => {
+
+    let token = localStorage.getItem('token')
+    if (!token) {
+      token = crypto.randomUUID()
+      localStorage.setItem('token', token)
+    }
+
     let socket: Socket;
     if (!socketRef.current) {
-      socket = io()
+      socket = io({ auth: { token } })
       socketRef.current = socket
       setSocket(socketRef.current)
     }
