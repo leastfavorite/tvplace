@@ -9,7 +9,7 @@ export default function Cursor() {
   const { field } = useController({ name: 'position' })
 
   const click = useCameraClick()
-  const color = useColor();
+  const color = useColor()
 
   useEffect(() => {
     if (click) {

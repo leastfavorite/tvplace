@@ -3,7 +3,7 @@ html {
   margin: 0;
   touch-action: none;
 
-  --background-color: #0E0F12;
+  --background-color: #0e0f12;
   --background-grid-color: #101217;
   --background-grid-thickness: 3px;
   --background-grid-size: 32px;

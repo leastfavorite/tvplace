@@ -2,11 +2,11 @@ import { createServer } from 'node:http'
 import next from 'next'
 import { Server } from 'socket.io'
 
-import * as z from "zod";
+import * as z from 'zod'
 
 import settings from './place.config.json'
 import { getPixels } from './actions/pixels'
-import { Sessions } from './utils/sessions';
+import { Sessions } from './utils/sessions'
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = 'localhost'
@@ -16,18 +16,17 @@ const app = next({ dev, hostname, port })
 const handler = app.getRequestHandler()
 
 const Color = z.int().gte(0).lt(settings.colors.length)
-const Index = z.int().gte(0).lt(settings.width * settings.height)
-
+const Index = z
+  .int()
+  .gte(0)
+  .lt(settings.width * settings.height)
 
 app.prepare().then(() => {
   const httpServer = createServer(handler)
 
   const sessions = new Sessions()
 
-  const io = new Server<
-    ClientToServerEvents,
-    ServerToClientEvents
-  >(httpServer)
+  const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer)
 
   io.on('connect', (socket) => {
     const addr = socket.client.conn.remoteAddress
@@ -39,32 +38,32 @@ app.prepare().then(() => {
     }
     socket.join(token)
 
-    const cooldown = sessions.connect(token);
+    const cooldown = sessions.connect(token)
     socket.on('disconnect', () => sessions.disconnect(token))
 
     if (cooldown) {
-      socket.emit("c", cooldown)
+      socket.emit('c', cooldown)
     }
 
-    const refresh = () => socket.emit("r", getPixels().packed.buffer)
+    const refresh = () => socket.emit('r', getPixels().packed.buffer)
 
-    socket.on("p", (c, i) => {
-      const color = Color.parse(c);
-      const index = Index.parse(i);
+    socket.on('p', (c, i) => {
+      const color = Color.parse(c)
+      const index = Index.parse(i)
 
       const [shouldPlace, cooldown] = sessions.place(token, addr)
       if (shouldPlace) {
-        getPixels().setPixel(color, index);
-        io.emit("p", color, index);
-        io.to(token).emit("c", cooldown || 0)
+        getPixels().setPixel(color, index)
+        io.emit('p', color, index)
+        io.to(token).emit('c', cooldown || 0)
       } else if (cooldown) {
-        socket.emit("c", cooldown)
+        socket.emit('c', cooldown)
       } else {
-        socket.emit("e", "Your IP is being rate-limited due to high activity.")
+        socket.emit('e', 'Your IP is being rate-limited due to high activity.')
       }
     })
 
-    socket.on("r", refresh)
+    socket.on('r', refresh)
     refresh()
   })
 

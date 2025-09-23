@@ -36,7 +36,6 @@ import styles from './style.module.css'
 //   console.log(keyframes)
 // }
 
-
 export default function Loader() {
   return <div className={styles.loader} />
 }

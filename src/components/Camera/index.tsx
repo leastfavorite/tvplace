@@ -50,9 +50,6 @@ export function useCameraClick() {
 }
 
 export default function Camera({ children }: PropsWithChildren) {
-  const width = settings.width;
-  const height = settings.height;
-
   const MIN_SCALE = 1
   const MAX_SCALE = 40
 
@@ -69,101 +66,103 @@ export default function Camera({ children }: PropsWithChildren) {
     scale: gridScale,
   })
 
-  const renderMove = useCallback(({
-    from,
-    to,
-    scale,
-    scalingFactor,
-    apply = false,
-    transitionSpeed = "0.6s",
-  }: MoveArgs) => {
-    const cam = cameraRef.current
+  const renderMove = useCallback(
+    ({ from, to, scale, scalingFactor, apply = false, transitionSpeed = '0.6s' }: MoveArgs) => {
+      const cam = cameraRef.current
 
-    from = from || new Point(0, 0)
-    to = to || from
+      from = from || new Point(0, 0)
+      to = to || from
 
-    if (!scale) {
-      if (scalingFactor) {
-        scale = cam.scale * scalingFactor
-      } else {
-        scale = cam.scale
-        scalingFactor = 1
+      if (!scale) {
+        if (scalingFactor) {
+          scale = cam.scale * scalingFactor
+        } else {
+          scale = cam.scale
+          scalingFactor = 1
+        }
       }
-    }
 
-    scale = Math.max(Math.min(scale, MAX_SCALE), MIN_SCALE)
-    scalingFactor = scale / cam.scale
+      scale = Math.max(Math.min(scale, MAX_SCALE), MIN_SCALE)
+      scalingFactor = scale / cam.scale
 
-    const pos = cam.pos.minus(from).times(scalingFactor).plus(to)
+      const pos = cam.pos.minus(from).times(scalingFactor).plus(to)
 
-    if (apply) {
-      cam.pos = pos
-      cam.scale = scale
+      if (apply) {
+        cam.pos = pos
+        cam.scale = scale
 
-      cam.pointers.forEach((p) => {
-        p.initial = p.current
-      })
-    }
+        cam.pointers.forEach((p) => {
+          p.initial = p.current
+        })
+      }
 
-    const zoom = zoomRef.current
-    if (zoom) {
-      zoom.style.transitionDuration = transitionSpeed;
-      zoom.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`
-    }
-    setGridScale(Math.max(1, Math.floor(scale)))
-  }, []);
+      const zoom = zoomRef.current
+      if (zoom) {
+        zoom.style.transitionDuration = transitionSpeed
+        zoom.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`
+      }
+      setGridScale(Math.max(1, Math.floor(scale)))
+    },
+    [],
+  )
 
   // applies the current gesture to the zoom container
   // returns true if the gesture was applied
-  const panFromGesture = useCallback((apply: boolean = false): boolean => {
-    const cam = cameraRef.current
+  const panFromGesture = useCallback(
+    (apply: boolean = false): boolean => {
+      const cam = cameraRef.current
 
-    if (cam.pointers.length === 2) {
-      const p1 = cam.pointers[0]
-      const p2 = cam.pointers[1]
+      if (cam.pointers.length === 2) {
+        const p1 = cam.pointers[0]
+        const p2 = cam.pointers[1]
 
-      const initial = p1.initial.avg(p2.initial)
-      const current = p2.current.avg(p1.current)
+        const initial = p1.initial.avg(p2.initial)
+        const current = p2.current.avg(p1.current)
 
-      const currentDist = p2.current.minus(p1.current).norm()
-      const initialDist = p2.initial.minus(p1.initial).norm()
+        const currentDist = p2.current.minus(p1.current).norm()
+        const initialDist = p2.initial.minus(p1.initial).norm()
 
-      const scalingFactor = currentDist / initialDist
+        const scalingFactor = currentDist / initialDist
 
-      renderMove({ from: initial, to: current, scalingFactor, apply })
-    } else if (cam.pointers.length === 1) {
-      const p = cam.pointers[0]
+        renderMove({ from: initial, to: current, scalingFactor, apply })
+      } else if (cam.pointers.length === 1) {
+        const p = cam.pointers[0]
 
-      const distance = p.current.minus(p.initial).norm()
+        const distance = p.current.minus(p.initial).norm()
 
-      if (!cam.zooming && distance < cam.scale) {
-        return false
+        if (!cam.zooming && distance < cam.scale) {
+          return false
+        }
+
+        renderMove({ from: p.initial, to: p.current, apply })
       }
 
-      renderMove({ from: p.initial, to: p.current, apply })
-    }
+      return true
+    },
+    [renderMove],
+  )
 
-    return true
-  }, [renderMove]);
-
-  const pointerDown = useCallback((p: ReactPointerEvent) => {
-    const cam = cameraRef.current
-    if (cam.pointers.findIndex(p2 => p.pointerId === p2.id) !== -1) {
-      return
-    }
-    if (cam.pointers.length < 2) {
-      if (cam.pointers.length === 1) {
-        cam.zooming = true
-        panFromGesture(true)
+  const pointerDown = useCallback(
+    (p: ReactPointerEvent) => {
+      const cam = cameraRef.current
+      if (cam.pointers.findIndex((p2) => p.pointerId === p2.id) !== -1) {
+        return
       }
+      if (cam.pointers.length < 2) {
+        if (cam.pointers.length === 1) {
+          cam.zooming = true
+          panFromGesture(true)
+        }
 
-      cam.pointers.push({
-        id: p.pointerId,
-        initial: new Point(p.clientX, p.clientY),
-        current: new Point(p.clientX, p.clientY),
-      })
-    }
-  }, [panFromGesture]);
+        cam.pointers.push({
+          id: p.pointerId,
+          initial: new Point(p.clientX, p.clientY),
+          current: new Point(p.clientX, p.clientY),
+        })
+      }
+    },
+    [panFromGesture],
+  )
 
   const applyClick = useCallback(() => {
     const box = zoomRef.current
@@ -175,27 +174,29 @@ export default function Camera({ children }: PropsWithChildren) {
 
       const pixel = cam.pointers[0].initial.minus(topLeftCorner).over(cam.scale).floor()
 
-      if (pixel.x < 0 || pixel.x >= width) {
+      if (pixel.x < 0 || pixel.x >= settings.width) {
         return
       }
-      if (pixel.y < 0 || pixel.y >= height) {
+      if (pixel.y < 0 || pixel.y >= settings.height) {
         return
       }
 
-      const pixelInScreenSpace = topLeftCorner.plus(pixel.plus(new Point(0.5, 0.5)).times(cam.scale))
-      const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2);
+      const pixelInScreenSpace = topLeftCorner.plus(
+        pixel.plus(new Point(0.5, 0.5)).times(cam.scale),
+      )
+      const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2)
 
       renderMove({
         from: pixelInScreenSpace,
         to: screenCenter,
         scale: MAX_SCALE / 2,
         apply: true,
-        transitionSpeed: '3s'
+        transitionSpeed: '3s',
       })
 
       setClick(pixel)
     }
-  }, [renderMove]);
+  }, [renderMove])
 
   interface MoveArgs {
     from?: Point
@@ -205,7 +206,6 @@ export default function Camera({ children }: PropsWithChildren) {
     apply?: boolean
     transitionSpeed?: string
   }
-
 
   useEffect(() => {
     const pointerMove = (p: PointerEvent) => {
@@ -263,14 +263,14 @@ export default function Camera({ children }: PropsWithChildren) {
 
     // initial centering
     const screenCenter = new Point(window.innerWidth, window.innerHeight).over(2)
-    const gridCenter = new Point(width, height).over(2)
-    const scale = Math.min(window.innerWidth / width, window.innerHeight / height)
+    const gridCenter = new Point(settings.width, settings.height).over(2)
+    const scale = Math.min(window.innerWidth / settings.width, window.innerHeight / settings.height)
     renderMove({
       from: gridCenter,
       to: screenCenter,
       scale,
       apply: true,
-      transitionSpeed: "0s",
+      transitionSpeed: '0s',
     })
 
     return () => {
@@ -287,7 +287,7 @@ export default function Camera({ children }: PropsWithChildren) {
       <div
         className={styles.zoom}
         ref={zoomRef}
-        style={{ width, height }}
+        style={{ width: settings.width, height: settings.height }}
         onPointerDown={pointerDown}
       >
         <CameraScaleContext.Provider value={gridScale}>

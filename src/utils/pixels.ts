@@ -28,9 +28,9 @@ export class PixelGrid extends Uint8ClampedArray {
 
     if (init && init.byteLength === (width * height) / 2) {
       // packed representation
-      const newPixels = new Uint8ClampedArray(init);
-      for (let i = 0; i < width * height / 2; i ++) {
-        const b = newPixels[i];
+      const newPixels = new Uint8ClampedArray(init)
+      for (let i = 0; i < (width * height) / 2; i++) {
+        const b = newPixels[i]
         // TODO: cleanup
         this.setPixel(b & 15, 2 * i + 1)
         this.setPixel((b >> 4) & 15, 2 * i)
@@ -43,7 +43,7 @@ export class PixelGrid extends Uint8ClampedArray {
   }
 
   setPixel(c: number, x: number, y?: number) {
-    const i = (y === undefined) ? x : y * this.w + x
+    const i = y === undefined ? x : y * this.w + x
 
     const COLORBITS = 4
     const BITMASK = (1 << COLORBITS) - 1

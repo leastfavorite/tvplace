@@ -1,12 +1,5 @@
 'use client'
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { io, Socket as IoSocket } from 'socket.io-client'
 
 type Socket = IoSocket<ServerToClientEvents, ClientToServerEvents>
@@ -18,14 +11,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const socketRef = useRef<Socket>(null)
 
   useEffect(() => {
-
     let token = localStorage.getItem('token')
     if (!token) {
       token = crypto.randomUUID()
       localStorage.setItem('token', token)
     }
 
-    let socket: Socket;
+    let socket: Socket
     if (!socketRef.current) {
       socket = io({ auth: { token } })
       socketRef.current = socket
@@ -33,7 +25,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
     return () => {
       if (socket) {
-        socket.disconnect();
+        socket.disconnect()
         setSocket(null)
       }
     }
@@ -48,8 +40,10 @@ export interface UseEventArgs {
 // if this were enterprise code i would not disable the typechecking like this.
 // i would slack my boss about it, and i would pray he has the cunning and wit
 // to slay this hydra
-export function useEvent<K extends keyof ServerToClientEvents>(name: K, on: ServerToClientEvents[K]) {
-
+export function useEvent<K extends keyof ServerToClientEvents>(
+  name: K,
+  on: ServerToClientEvents[K],
+) {
   const socket = useContext(SocketContext)
   useEffect(() => {
     if (socket) {

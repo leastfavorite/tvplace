@@ -5,7 +5,7 @@ import { useEvent } from '../SocketProvider'
 import { PixelGrid } from '@/utils/pixels'
 import { useCameraScale } from '../Camera'
 
-import settings from '../../place.config.json';
+import settings from '../../place.config.json'
 
 export interface GridProps {
   colors: string[]
@@ -16,9 +16,7 @@ export interface GridProps {
 // TODO: ideally we can determine based on browser type whether
 // we want to use scaledcanvas
 export default function Grid() {
-  const width = settings.width;
-  const height = settings.height;
-  const colors = settings.colors;
+  const colors = settings.colors
 
   const scale = useCameraScale()
 
@@ -31,21 +29,25 @@ export default function Grid() {
   const pixelsRef = useRef<PixelGrid>(null)
   const getPixels = useCallback(() => {
     if (!pixelsRef.current) {
-      pixelsRef.current = new PixelGrid({ width, height, colors })
+      pixelsRef.current = new PixelGrid({
+        width: settings.width,
+        height: settings.height,
+        colors,
+      })
     }
     return pixelsRef.current
-  }, [colors]);
+  }, [colors])
 
   const updateScaledCanvas = useCallback(() => {
+    const width = settings.width
+    const height = settings.height
+
     const rawCanvas = rawCanvasRef.current
     if (scaledCtx && rawCanvas) {
       scaledCtx.imageSmoothingEnabled = false
-      scaledCtx.drawImage(rawCanvas,
-                          0, 0, width, height,
-                          0, 0, width * scale, height * scale)
+      scaledCtx.drawImage(rawCanvas, 0, 0, width, height, 0, 0, width * scale, height * scale)
     }
-  }, [scaledCtx, scale]);
-
+  }, [scaledCtx, scale])
 
   const refresh = useCallback(() => {
     if (rawCtx) {
@@ -60,19 +62,29 @@ export default function Grid() {
   // TODO: type these
   useEvent(
     'p',
-    useCallback((c: number, i: number) => {
-      getPixels().setPixel(c, i)
-      refresh()
-    }, [getPixels, refresh])
+    useCallback(
+      (c: number, i: number) => {
+        getPixels().setPixel(c, i)
+        refresh()
+      },
+      [getPixels, refresh],
+    ),
   )
 
   useEvent(
     'r',
-    useCallback((newPixels: ArrayBufferLike) => {
-      pixelsRef.current = new PixelGrid(
-        { width, height, colors, init: newPixels })
-      refresh()
-    }, [pixelsRef, refresh])
+    useCallback(
+      (newPixels: ArrayBufferLike) => {
+        pixelsRef.current = new PixelGrid({
+          width: settings.width,
+          height: settings.height,
+          colors,
+          init: newPixels,
+        })
+        refresh()
+      },
+      [pixelsRef, colors, refresh],
+    ),
   )
 
   useEffect(() => {
@@ -94,8 +106,8 @@ export default function Grid() {
   useEffect(() => {
     const canvas = scaledCanvasRef.current
     if (canvas) {
-      canvas.width = width * scale
-      canvas.height = height * scale
+      canvas.width = settings.width * scale
+      canvas.height = settings.height * scale
       canvas.style.transform = `scale(${1.0 / scale})`
       updateScaledCanvas()
     }
@@ -107,10 +119,15 @@ export default function Grid() {
 
   return (
     <>
-      <canvas width={width} height={height} ref={rawCanvasRef} style={{ display: 'none' }} />
       <canvas
-        width={width * scale}
-        height={height * scale}
+        width={settings.width}
+        height={settings.height}
+        ref={rawCanvasRef}
+        style={{ display: 'none' }}
+      />
+      <canvas
+        width={settings.width * scale}
+        height={settings.height * scale}
         ref={scaledCanvasRef}
         style={{
           transformOrigin: 'top left',

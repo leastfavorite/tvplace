@@ -28,13 +28,18 @@ export default function ColorPicker({ colors }: { colors: string[] }) {
         } as CSSProperties
 
         const onClick = () => {
-          document.body.style.setProperty('--primary', c);
-          document.body.style.setProperty('--secondary', iconColor);
+          document.body.style.setProperty('--primary', c)
+          document.body.style.setProperty('--secondary', iconColor)
         }
 
         return (
           <div className={styles.container} key={i} style={cssVars}>
-            <input {...register('color', { required: true })} type="radio" value={i} onClick={onClick} />
+            <input
+              {...register('color', { required: true })}
+              type="radio"
+              value={i}
+              onClick={onClick}
+            />
             <HiPaintBrush className={styles.icon} />
           </div>
         )
