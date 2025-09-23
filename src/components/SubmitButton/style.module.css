@@ -3,17 +3,18 @@
     flex: 1;
     flex-direction: row;
     align-items: center;
-    padding: 0.25em 0.25em;
+    padding: 0.25rem 0.25rem;
     justify-content: center;
-    border-radius: 1em;
+    border-radius: 1rem;
     border: none;
     font-family: "Kode Mono", monospace;
     white-space: pre;
-    font-size: 0.7em;
+    font-size: 0.7rem;
     flex-wrap: wrap;
 
     background-color: var(--button-color);
     color: var(--border-color);
+    overflow: hidden;
 }
 
 .button p {
@@ -42,7 +43,32 @@
   border: 2px solid var(--border-color);
   border-radius: 4px;
   transform: translate(-0.1em, 4px);
-  background-color: blue;
+}
+
+.loading {
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.5rem;
+}
+
+.loadingBar {
+  position: absolute;
+  z-index: 999;
+  background-color: var(--primary);
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  color: var(--secondary);
+
+  clip-path: polygon(0 0, var(--clip) 0, var(--clip) 100%, 0 100%);
+  transition: clip-path 1.5s cubic-bezier(0.25, 1, 0.5, 1), color 0.1s, background-color 0.1s;
 }
 
 @media (min-width: 770px) {
@@ -56,5 +82,9 @@
 
   .action {
     font-size: 1.5rem;
+  }
+
+  .loading {
+    font-size: 2.35rem;
   }
 }

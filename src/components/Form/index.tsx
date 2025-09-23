@@ -11,7 +11,7 @@ import Point from '@/utils/point'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Cursor from '../Cursor'
 import SubmitButton from '../SubmitButton'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 export type FormValues = {
   color: string
@@ -28,6 +28,8 @@ export function useColor(orElse: string = 'transparent') {
 export default function Form() {
   const socket = useSocket();
 
+  const [unlockTime, setUnlockTime] = useState(0);
+
   const methods = useForm<FormValues>({
     mode: 'onChange',
   })
@@ -35,7 +37,8 @@ export default function Form() {
     if (socket) {
       socket.emit('p',
                   parseInt(data.color),
-                  data.position.y * settings.width + data.position.x)
+                  data.position.y * settings.width + data.position.x,
+                  setUnlockTime)
     }
   }, [socket])
 
@@ -56,7 +59,7 @@ export default function Form() {
                   <input className={styles.nameInput} maxLength={10} placeholder="enter name..." type="text" />
                 </div>
                 <div className={`${styles.border} ${styles.grow}`}>
-                  <SubmitButton />
+                  <SubmitButton unlockTime={unlockTime} />
                 </div>
               </div>
             </div>

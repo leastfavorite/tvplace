@@ -29,13 +29,19 @@ app.prepare().then(() => {
 
     const refresh = () => socket.emit("r", getPixels().packed.buffer)
 
+    let updateTime = Date.now();
     socket.on("p", (c, i, callback) => {
-      const color = Color.parse(c);
-      const index = Index.parse(i);
 
-      getPixels().setPixel(color, index);
-      io.emit("p", color, index);
-      callback(Date.now() + 15000)
+      if (Date.now() >= updateTime) {
+        const color = Color.parse(c);
+        const index = Index.parse(i);
+
+        getPixels().setPixel(color, index);
+        io.emit("p", color, index);
+
+        updateTime = Date.now() + settings.cooldown * 1000;
+      }
+      callback(updateTime)
     })
 
     socket.on("r", refresh)

@@ -39,7 +39,7 @@ export interface UseEventArgs {
 }
 
 // if this were enterprise code i would not disable the typechecking like this.
-// i would slack my boss about it, and i would pray he has the cunning
+// i would slack my boss about it, and i would pray he has the cunning and wit
 // to slay this hydra
 export function useEvent<K extends keyof ServerToClientEvents>(name: K, on: ServerToClientEvents[K]) {
 
