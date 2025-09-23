@@ -57,6 +57,7 @@ export default function Form() {
               <ColorPicker colors={settings.colors} />
             </div>
             <div>
+              {/*
               <div className={styles.border}>
                 <input
                   className={styles.nameInput}
@@ -65,6 +66,7 @@ export default function Form() {
                   type="text"
                 />
               </div>
+              */}
               <div className={`${styles.border} ${styles.grow}`}>
                 <SubmitButton unlockTime={unlockTime} />
               </div>

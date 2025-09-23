@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let token = localStorage.getItem('token')
     if (!token) {
-      token = crypto.randomUUID()
+      token = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
       localStorage.setItem('token', token)
     }
 

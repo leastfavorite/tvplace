@@ -7,22 +7,19 @@ export interface PixelGridArgs {
   init?: ArrayBufferLike
 }
 
-export class PixelGrid extends Uint8ClampedArray {
+export class PixelGrid {
   w: number
   h: number
   colors: Color[]
-  hash: number
-  packed: Uint8ClampedArray
+  packed: Uint8ClampedArray<ArrayBuffer>
+  unpacked: Uint8ClampedArray<ArrayBuffer>
 
   constructor({ width, height, colors, init }: PixelGridArgs) {
-    super(4 * width * height)
-
     this.w = width
     this.h = height
-    this.hash = 0
 
-    this.packed = new Uint8ClampedArray(Math.ceil((width * height) / 2))
-    this.packed.fill(0)
+    this.packed = new Uint8ClampedArray(new ArrayBuffer(Math.ceil((width * height) / 2)))
+    this.unpacked = new Uint8ClampedArray(new ArrayBuffer(width * height * 4))
 
     this.colors = [...colors.map(colorHexToRgb)]
 
@@ -43,6 +40,7 @@ export class PixelGrid extends Uint8ClampedArray {
   }
 
   setPixel(c: number, x: number, y?: number) {
+    this.seed += 1;
     const i = y === undefined ? x : y * this.w + x
 
     const COLORBITS = 4
@@ -63,20 +61,11 @@ export class PixelGrid extends Uint8ClampedArray {
     }
     oldColor &= BITMASK
 
-    const HASHBITS = 8
-    const HASHMASK = (1 << HASHBITS) - 1
-
-    const shuffle = ((i * 251) % HASHMASK) + 1
-    const rawHash = (oldColor ^ c) * shuffle
-
-    const hash = (rawHash | (rawHash >> HASHBITS)) & HASHMASK
-    this.hash ^= hash
-
     const color = this.colors[c]
 
-    this[4 * i + 0] = color.r
-    this[4 * i + 1] = color.g
-    this[4 * i + 2] = color.b
-    this[4 * i + 3] = 255
+    this.unpacked[4 * i + 0] = color.r
+    this.unpacked[4 * i + 1] = color.g
+    this.unpacked[4 * i + 2] = color.b
+    this.unpacked[4 * i + 3] = 255
   }
 }

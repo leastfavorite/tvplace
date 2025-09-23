@@ -3,7 +3,7 @@
   flex: 1;
   flex-direction: row;
   align-items: center;
-  padding: 0.25rem 0.25rem;
+  padding: 0.25rem 1rem;
   justify-content: center;
   border-radius: 1rem;
   border: none;
@@ -51,6 +51,10 @@
   font-size: 1.5rem;
 }
 
+.loading p {
+  width: 3em;
+}
+
 .loadingBar {
   position: absolute;
   z-index: 999;
@@ -74,7 +78,7 @@
     background-color 0.1s;
 }
 
-@media (min-width: 770px) {
+@media (min-width: 601px) {
   .action::after {
     content: '';
   }

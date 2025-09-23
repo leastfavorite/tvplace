@@ -5,8 +5,11 @@ import { Server } from 'socket.io'
 import * as z from 'zod'
 
 import settings from './place.config.json'
-import { getPixels } from './actions/pixels'
 import { Sessions } from './utils/sessions'
+import { PixelGrid } from './utils/pixels'
+import sharp from 'sharp'
+import { writeFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = 'localhost'
@@ -20,6 +23,42 @@ const Index = z
   .int()
   .gte(0)
   .lt(settings.width * settings.height)
+
+// TODO create API endpoint for PNG
+// TODO create script hookup for uploading images (can be in other docker container)
+// TODO make default color for loading bar thing
+// TODO remove magic paths
+// TODO support cloudflare proxy
+
+let inputBoard;
+try {
+  inputBoard = readFileSync('data/board.bin');
+} catch (_) {
+  inputBoard = undefined
+}
+
+let pixels = new PixelGrid({
+  width: settings.width,
+  height: settings.height,
+  colors: settings.colors,
+  init: inputBoard?.buffer
+})
+
+let imageChanged = false;
+const saveImage = async () => {
+  if (!imageChanged) return;
+  await Promise.all([
+    sharp(pixels.unpacked, { raw: {
+      width: settings.width,
+      height: settings.height,
+      channels: 4
+    }}).png().toFile('data/board.png'),
+    writeFile('data/board.bin', pixels.packed)
+  ])
+  imageChanged = false;
+}
+
+setInterval(saveImage, 5000);
 
 app.prepare().then(() => {
   const httpServer = createServer(handler)
@@ -45,7 +84,7 @@ app.prepare().then(() => {
       socket.emit('c', cooldown)
     }
 
-    const refresh = () => socket.emit('r', getPixels().packed.buffer)
+    const refresh = () => socket.emit('r', pixels.packed.buffer)
 
     socket.on('p', (c, i) => {
       const color = Color.parse(c)
@@ -53,9 +92,10 @@ app.prepare().then(() => {
 
       const [shouldPlace, cooldown] = sessions.place(token, addr)
       if (shouldPlace) {
-        getPixels().setPixel(color, index)
+        pixels.setPixel(color, index)
         io.emit('p', color, index)
         io.to(token).emit('c', cooldown || 0)
+        imageChanged = true;
       } else if (cooldown) {
         socket.emit('c', cooldown)
       } else {

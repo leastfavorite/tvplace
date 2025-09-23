@@ -52,7 +52,7 @@ export default function Grid() {
   const refresh = useCallback(() => {
     if (rawCtx) {
       const pixels = getPixels()
-      const imageData = new ImageData(pixels, pixels.w, pixels.h)
+      const imageData = new ImageData(pixels.unpacked, pixels.w, pixels.h)
       rawCtx.putImageData(imageData, 0, 0)
     }
 
