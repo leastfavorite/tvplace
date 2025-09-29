@@ -19,7 +19,7 @@ export async function GET() {
     headers: new Headers({
       'content-type': 'image/png',
       'content-length': stats.size + '',
-      'cache-control': 'max-age=60',
+      'cache-control': 'max-age=0',
     }),
   })
 }
