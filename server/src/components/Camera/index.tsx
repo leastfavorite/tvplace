@@ -13,8 +13,7 @@ import {
 
 import styles from './style.module.css'
 import Point from '@/utils/point'
-
-import settings from '@/utils/settings'
+import { useSettings } from '../SettingsProvider'
 
 interface PointerData {
   initial: Point
@@ -50,6 +49,7 @@ export function useCameraClick() {
 }
 
 export default function Camera({ children }: PropsWithChildren) {
+  const settings = useSettings()
   const MIN_SCALE = 1
   const MAX_SCALE = 40
 
@@ -196,7 +196,7 @@ export default function Camera({ children }: PropsWithChildren) {
 
       setClick(pixel)
     }
-  }, [renderMove])
+  }, [renderMove, settings])
 
   interface MoveArgs {
     from?: Point
@@ -280,7 +280,7 @@ export default function Camera({ children }: PropsWithChildren) {
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('wheel', wheel)
     }
-  }, [applyClick, renderMove, panFromGesture])
+  }, [applyClick, renderMove, panFromGesture, settings])
 
   return (
     <div className={styles.container}>

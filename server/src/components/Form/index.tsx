@@ -1,7 +1,6 @@
 'use client'
 import ColorPicker from '@/components/ColorPicker'
 
-import settings from '@/utils/settings'
 import { useEvent, useSocket } from '@/components/SocketProvider'
 
 import styles from './style.module.css'
@@ -12,6 +11,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Cursor from '../Cursor'
 import SubmitButton from '../SubmitButton'
 import { useCallback, useState } from 'react'
+import { useSettings } from '../SettingsProvider'
 
 export type FormValues = {
   color: string
@@ -19,6 +19,7 @@ export type FormValues = {
 }
 
 export function useColor(orElse: string = 'transparent') {
+  const settings = useSettings()
   return useWatch({
     name: 'color',
     compute: (i) => (i === undefined ? orElse : settings.colors[parseInt(i)]),
@@ -26,6 +27,7 @@ export function useColor(orElse: string = 'transparent') {
 }
 
 export default function Form() {
+  const settings = useSettings()
   const socket = useSocket()
 
   const [unlockTime, setUnlockTime] = useState(0)
@@ -41,7 +43,7 @@ export default function Form() {
         socket.emit('p', parseInt(data.color), data.position.y * settings.width + data.position.x)
       }
     },
-    [socket],
+    [socket, settings],
   )
 
   return (

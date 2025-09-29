@@ -3,10 +3,11 @@ import styles from './style.module.css'
 import { FormValues, useColor } from '../Form'
 import Point from '@/utils/point'
 
-import settings from '@/utils/settings'
 import { CSSProperties, useEffect, useState } from 'react'
+import { useSettings } from '../SettingsProvider'
 
 export function UnlockedButton() {
+  const settings = useSettings()
   const color = useColor()
 
   const pos = useWatch<FormValues>({
@@ -37,6 +38,7 @@ export function UnlockedButton() {
 }
 
 export default function Button({ unlockTime }: { unlockTime?: number }) {
+  const settings = useSettings()
   const [remaining, setRemaining] = useState<number>(0)
 
   useEffect(() => {

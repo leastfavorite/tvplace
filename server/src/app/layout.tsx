@@ -3,6 +3,8 @@ import './globals.css'
 
 import { Kode_Mono, Montserrat } from 'next/font/google'
 import { SocketProvider } from '@/components/SocketProvider'
+import { SettingsProvider } from '@/components/SettingsProvider'
+import settings from '@/utils/settings'
 
 const kodeMono = Kode_Mono({
   weight: '400',
@@ -27,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${kodeMono.className} ${montserrat.className}`}>
       <body>
-        <SocketProvider>{children}</SocketProvider>
+        <SettingsProvider value={settings}>
+          <SocketProvider>{children}</SocketProvider>
+        </SettingsProvider>
       </body>
     </html>
   )
