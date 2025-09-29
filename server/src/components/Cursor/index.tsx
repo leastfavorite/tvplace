@@ -1,4 +1,4 @@
-import { useColor } from '../Form'
+import { useColor } from '@/app/page'
 import { useCameraClick } from '../Camera'
 import { CSSProperties, useEffect } from 'react'
 

@@ -6,7 +6,7 @@ import styles from './style.module.css'
 import { CSSProperties } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { luminance } from '@/utils/color'
-import { FormValues } from '../Form'
+import { FormValues } from '@/app/page'
 
 export default function ColorPicker({ colors }: { colors: string[] }) {
   const { register } = useFormContext<FormValues>()

@@ -1,12 +1,13 @@
 import { after } from 'next/server'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import settings from '@/utils/settings'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function GET() {
-  const filePath = path.resolve('data/board.png')
+  const filePath = path.resolve(settings.dataPath + '/board.png')
   const stats = await fs.stat(filePath)
   const fileHandle = await fs.open(filePath)
   const stream = fileHandle.readableWebStream({ type: 'bytes' })

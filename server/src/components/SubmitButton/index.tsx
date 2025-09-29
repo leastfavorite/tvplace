@@ -1,6 +1,6 @@
 import { useWatch } from 'react-hook-form'
 import styles from './style.module.css'
-import { FormValues, useColor } from '../Form'
+import { FormValues, useColor } from '@/app/page'
 import Point from '@/utils/point'
 
 import { CSSProperties, useEffect, useState } from 'react'
