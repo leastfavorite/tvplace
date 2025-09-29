@@ -3,15 +3,20 @@ import os
 import aiohttp
 import io
 import hashlib
+import time
+import urllib3
 
 from PIL import Image
 
 from signal import SIGINT, SIGTERM
 from samsungtvws.async_art import SamsungTVAsyncArt
 
+urllib3.disable_warnings()
+
 ERROR_TIMEOUT = 300
-UPLOAD_TIMEOUT = 60
+UPLOAD_TIMEOUT = 5
 SAME_HASH_TIMEOUT = 60
+CHECK_CLOSE_TIMEOUT = 15
 
 async def getImage(last_hash: bytes) -> tuple[bytes, bytes]:
     print("getting image")
@@ -47,35 +52,43 @@ async def getImage(last_hash: bytes) -> tuple[bytes, bytes]:
 def entersArtMode(tv: SamsungTVAsyncArt) -> asyncio.Future[None]:
     print("waiting for art mode")
     future: asyncio.Future[None] = asyncio.Future()
-    def _callback(_: str, resp: dict[str, dict[str, str]]) -> None:
-        if resp["data"]["status"] == "on":
+    def on_art_mode_changed(_: str, resp: dict[str, dict[str, str]]) -> None:
+        if tv.art_mode:
+            print("in art mode")
             future.set_result(None)
             tv.set_callback('art_mode_changed') # remove callback
-    tv.set_callback('art_mode_changed', _callback)
-    print("got art mode")
+    tv.set_callback('art_mode_changed', on_art_mode_changed)
+
+    async def cancel_if_tv_off():
+        while not future.done():
+            await asyncio.sleep(CHECK_CLOSE_TIMEOUT)
+            if not tv.is_alive():
+                future.set_exception(Exception("tv is down"))
+    asyncio.ensure_future(cancel_if_tv_off())
+
     return future
 
 async def main() -> None:
     asyncio.get_running_loop().add_signal_handler(SIGINT, lambda: os._exit(1))
     asyncio.get_running_loop().add_signal_handler(SIGTERM, lambda: os._exit(1))
 
-    tv = SamsungTVAsyncArt(host=os.environ["TV_IP"], port=8002, token_file="./token.txt")
-    try:
+    async with SamsungTVAsyncArt(host=os.environ["TV_IP"], port=8002, token_file="./token.txt") as tv:
         if not await tv.on():
-            print('TV is off, exiting')
-            return
+            raise Exception("tv is down")
         else:
-            print('Start Monitoring')
+            print('start monitoring')
             try:
                 await tv.start_listening()
-                print('Started')
+                print('connected')
             except Exception as e:
                 print('failed to connect with TV: {}'.format(e))
         if not tv.is_alive():
-            return
+            raise Exception("tv is down")
 
         oldhash = b''
         while True:
+            if not tv.is_alive():
+                raise Exception("tv is down")
             if not await tv.is_artmode():
                 await entersArtMode(tv)
             image, imhash = await getImage(oldhash)
@@ -88,10 +101,6 @@ async def main() -> None:
                 await tv.select_image(img_id)
                 await tv.delete(old_id["content_id"])
         await asyncio.sleep(UPLOAD_TIMEOUT)
-    finally:
-        await tv.close()
-
-
 
 if __name__ == "__main__":
     while True:
@@ -99,6 +108,7 @@ if __name__ == "__main__":
             asyncio.run(main())
         except (KeyboardInterrupt, SystemExit):
             os._exit(1)
-        except Exception:
+        except Exception as e:
+            print(e)
             time.sleep(ERROR_TIMEOUT)
             continue

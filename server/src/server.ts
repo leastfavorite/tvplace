@@ -75,7 +75,7 @@ app.prepare().then(() => {
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer)
 
   io.on('connect', (socket) => {
-    const addr = socket.client.conn.remoteAddress
+    const addr = socket.handshake.headers["x-forwarded-for"]?.toString() || socket.client.conn.remoteAddress
     const token = socket.handshake.auth.token
 
     if (!token) {
