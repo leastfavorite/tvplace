@@ -10,6 +10,7 @@ from PIL import Image
 
 from signal import SIGINT, SIGTERM
 from samsungtvws.async_art import SamsungTVAsyncArt
+from typing import Any, cast
 
 urllib3.disable_warnings()
 
@@ -49,17 +50,25 @@ async def getImage(last_hash: bytes) -> tuple[bytes, bytes]:
         print("got image")
         return (stream.getvalue(), img_hash)
 
-def entersArtMode(tv: SamsungTVAsyncArt) -> asyncio.Future[None]:
-    print("waiting for art mode")
+def inArtMode(tv: SamsungTVAsyncArt) -> asyncio.Future[None]:
     future: asyncio.Future[None] = asyncio.Future()
-    def on_art_mode_changed(_: str, resp: dict[str, dict[str, str]]) -> None:
+    if tv.art_mode:
+        future.set_result(None)
+        return future
+
+    if not tv.is_alive():
+        future.set_exception(Exception("tv is down"))
+        return future
+
+    print("waiting for art mode")
+    def on_art_mode_changed(*_: Any) -> None:
         if tv.art_mode:
             print("in art mode")
             future.set_result(None)
             tv.set_callback('art_mode_changed') # remove callback
     tv.set_callback('art_mode_changed', on_art_mode_changed)
 
-    async def cancel_if_tv_off():
+    async def cancel_if_tv_off() -> None:
         while not future.done():
             await asyncio.sleep(CHECK_CLOSE_TIMEOUT)
             if not tv.is_alive():
@@ -72,7 +81,9 @@ async def main() -> None:
     asyncio.get_running_loop().add_signal_handler(SIGINT, lambda: os._exit(1))
     asyncio.get_running_loop().add_signal_handler(SIGTERM, lambda: os._exit(1))
 
-    async with SamsungTVAsyncArt(host=os.environ["TV_IP"], port=8002, token_file="./token.txt") as tv:
+    async with SamsungTVAsyncArt(host=os.environ["TV_IP"], port=8002, token_file="./token.txt") as tv_:
+        tv = cast(SamsungTVAsyncArt, tv_)
+
         if not await tv.on():
             raise Exception("tv is down")
         else:
@@ -90,7 +101,7 @@ async def main() -> None:
             if not tv.is_alive():
                 raise Exception("tv is down")
             if not await tv.is_artmode():
-                await entersArtMode(tv)
+                await inArtMode(tv)
             image, imhash = await getImage(oldhash)
             oldhash = imhash
 
@@ -100,7 +111,7 @@ async def main() -> None:
                 img_id = await tv.upload(image, file_type="png", matte="none", portrait_matte="none")
                 await tv.select_image(img_id)
                 await tv.delete(old_id["content_id"])
-        await asyncio.sleep(UPLOAD_TIMEOUT)
+            await asyncio.sleep(UPLOAD_TIMEOUT)
 
 if __name__ == "__main__":
     while True:
