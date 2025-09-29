@@ -40,7 +40,6 @@ export class PixelGrid {
   }
 
   setPixel(c: number, x: number, y?: number) {
-    this.seed += 1;
     const i = y === undefined ? x : y * this.w + x
 
     const COLORBITS = 4
@@ -50,16 +49,13 @@ export class PixelGrid {
     const packedLow = i % 2
     const packedIdx = Math.floor(i / 2)
 
-    let oldColor = this.packed[packedIdx]
     if (packedLow) {
       this.packed[packedIdx] &= BITMASK << COLORBITS
       this.packed[packedIdx] |= c
     } else {
-      oldColor >>= COLORBITS
       this.packed[packedIdx] &= BITMASK
       this.packed[packedIdx] |= c << COLORBITS
     }
-    oldColor &= BITMASK
 
     const color = this.colors[c]
 

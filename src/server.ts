@@ -30,35 +30,39 @@ const Index = z
 // TODO remove magic paths
 // TODO support cloudflare proxy
 
-let inputBoard;
+let inputBoard
 try {
-  inputBoard = readFileSync('data/board.bin');
-} catch (_) {
+  inputBoard = readFileSync('data/board.bin')
+} catch {
   inputBoard = undefined
 }
 
-let pixels = new PixelGrid({
+const pixels = new PixelGrid({
   width: settings.width,
   height: settings.height,
   colors: settings.colors,
-  init: inputBoard?.buffer
+  init: inputBoard?.buffer,
 })
 
-let imageChanged = false;
+let imageChanged = false
 const saveImage = async () => {
-  if (!imageChanged) return;
+  if (!imageChanged) return
   await Promise.all([
-    sharp(pixels.unpacked, { raw: {
-      width: settings.width,
-      height: settings.height,
-      channels: 4
-    }}).png().toFile('data/board.png'),
-    writeFile('data/board.bin', pixels.packed)
+    sharp(pixels.unpacked, {
+      raw: {
+        width: settings.width,
+        height: settings.height,
+        channels: 4,
+      },
+    })
+      .png()
+      .toFile('data/board.png'),
+    writeFile('data/board.bin', pixels.packed),
   ])
-  imageChanged = false;
+  imageChanged = false
 }
 
-setInterval(saveImage, 5000);
+setInterval(saveImage, 5000)
 
 app.prepare().then(() => {
   const httpServer = createServer(handler)
@@ -95,7 +99,7 @@ app.prepare().then(() => {
         pixels.setPixel(color, index)
         io.emit('p', color, index)
         io.to(token).emit('c', cooldown || 0)
-        imageChanged = true;
+        imageChanged = true
       } else if (cooldown) {
         socket.emit('c', cooldown)
       } else {
