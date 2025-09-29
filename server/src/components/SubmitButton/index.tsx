@@ -3,7 +3,7 @@ import styles from './style.module.css'
 import { FormValues, useColor } from '../Form'
 import Point from '@/utils/point'
 
-import settings from '../../place.config.json'
+import settings from '@/utils/settings'
 import { CSSProperties, useEffect, useState } from 'react'
 
 export function UnlockedButton() {

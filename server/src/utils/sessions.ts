@@ -1,4 +1,5 @@
-import settings from '@/place.config.json'
+import settings from '@/utils/settings'
+
 type Token = string
 
 interface Session {

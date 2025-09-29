@@ -13,6 +13,8 @@ RUN pnpm run build
 
 EXPOSE 3000
 
+ENV PLACE_CONFIG="/config/settings.json"
+
 CMD ["pnpm", "run", "start"]
 
 # Define the command to run your application

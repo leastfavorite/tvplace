@@ -1,4 +1,4 @@
-import { Color, colorHexToRgb } from './color'
+import { Color, colorHexToRgb } from '@/utils/color'
 
 export interface PixelGridArgs {
   width: number

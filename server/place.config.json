@@ -20,5 +20,6 @@
     "#820080"
   ],
   "cooldown": 30,
-  "maxSessionsPerIp": 2
+  "maxSessionsPerIp": 2,
+  "dataPath": "./data"
 }

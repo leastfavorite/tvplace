@@ -1,7 +1,7 @@
 'use client'
 import ColorPicker from '@/components/ColorPicker'
 
-import settings from '../../place.config.json' with { type: 'json' }
+import settings from '@/utils/settings'
 import { useEvent, useSocket } from '@/components/SocketProvider'
 
 import styles from './style.module.css'

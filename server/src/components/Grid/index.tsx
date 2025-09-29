@@ -5,7 +5,7 @@ import { useEvent } from '../SocketProvider'
 import { PixelGrid } from '@/utils/pixels'
 import { useCameraScale } from '../Camera'
 
-import settings from '../../place.config.json'
+import settings from '@/utils/settings'
 
 export interface GridProps {
   colors: string[]

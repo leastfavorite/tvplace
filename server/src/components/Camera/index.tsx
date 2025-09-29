@@ -14,7 +14,7 @@ import {
 import styles from './style.module.css'
 import Point from '@/utils/point'
 
-import settings from '@/place.config.json'
+import settings from '@/utils/settings'
 
 interface PointerData {
   initial: Point

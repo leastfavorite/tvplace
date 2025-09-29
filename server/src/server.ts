@@ -4,9 +4,9 @@ import { Server } from 'socket.io'
 
 import * as z from 'zod'
 
-import settings from './place.config.json'
-import { Sessions } from './utils/sessions'
-import { PixelGrid } from './utils/pixels'
+import settings from '@/utils/settings'
+import { Sessions } from '@/utils/sessions'
+import { PixelGrid } from '@/utils/pixels'
 import sharp from 'sharp'
 import { writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
@@ -30,9 +30,12 @@ const Index = z
 // TODO remove magic paths
 // TODO support cloudflare proxy
 
+const binPath = settings.dataPath + '/board.bin'
+const pngPath = settings.dataPath + '/board.png'
+
 let inputBoard
 try {
-  inputBoard = readFileSync('data/board.bin')
+  inputBoard = readFileSync(binPath)
 } catch {
   inputBoard = undefined
 }
@@ -56,8 +59,8 @@ const saveImage = async () => {
       },
     })
       .png()
-      .toFile('data/board.png'),
-    writeFile('data/board.bin', pixels.packed),
+      .toFile(pngPath),
+    writeFile(binPath, pixels.packed),
   ])
   imageChanged = false
 }

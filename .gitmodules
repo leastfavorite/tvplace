@@ -1,0 +1,3 @@
+[submodule "client/samsung-tv-ws-api"]
+	path = client/samsung-tv-ws-api
+	url = https://github.com/NickWaterton/samsung-tv-ws-api.git
